@@ -1,6 +1,8 @@
 import datetime
 import asyncio
 import re
+import requests
+import json
 import uuid
 import random
 import libs.TelepotObjects as TelepotObjects
@@ -43,8 +45,10 @@ __maintainer__ = "Egil Hasting"
 __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
 
+
 class GeneralMessageEvent(object):
-    def __init__(self, bot, dbobject, messageobject):
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        self.keyword = keyword
         self.dbobject = dbobject
         self.messageobject = messageobject
         self.bot = bot
@@ -52,6 +56,8 @@ class GeneralMessageEvent(object):
         self._validate()
 
     def _validate(self):
+        if self.keyword is None:
+            self.isvalid = False
         if not isinstance(self.messageobject, TelepotObjects.MessageObject):
             self.isvalid = False
         if not isinstance(self.dbobject, Models.StaticModels):
@@ -66,9 +72,49 @@ class GeneralMessageEvent(object):
         raise NotImplementedError()
 
 
+class WebSearchDuckDuckGo(GeneralMessageEvent):
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+
+    def _generate_url(self, searchstring):
+        searchstring = searchstring.replace(" ", "+")
+        print(searchstring)
+        return "http://api.duckduckgo.com/?q={}&format=json".format(searchstring)
+
+    @asyncio.coroutine
+    def run(self):
+        found = None
+        m = re.search('^({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
+        if m is not None:
+            found = m.groups()
+        else:
+            m = re.search('^({})\s(.*)$'.format(self.keyword), self.messageobject.text)
+            if m is not None:
+                found = m.groups()
+        if found is not None:
+            r = requests.get(self._generate_url(found[1]))
+            if r.status_code == 200:
+                searchresult = r.json()
+                resultcount = len(searchresult["RelatedTopics"])
+                outputstring = "{} (found: {})\n".format(searchresult["Heading"], resultcount)
+                limitcounter = 0
+                for article in searchresult["RelatedTopics"]:
+                    outputstring += article.get("Result", "") + "\n"
+                    d = article.get("Result", "") 
+                    if d == "":
+                        print(article)
+                    limitcounter += 1
+                    if limitcounter == 3:
+                        break
+                #Loggiz.L.info("{} |{} |{} |{} |".format(r.status_code, r.headers['content-type'], r.encoding, r.text, ))
+                yield from self.bot.sendMessage("{}".format(outputstring), parse_mode="HTML")
+        else:
+            Loggiz.L.err("Missing search term")
+
+
 class Counter(GeneralMessageEvent):
-    def __init__(self, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
         self.seen = self.dbobject.Get("seenlog")
 
     @asyncio.coroutine
@@ -87,8 +133,8 @@ class Counter(GeneralMessageEvent):
 
 
 class Seen(GeneralMessageEvent):
-    def __init__(self, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
         self.seendb = self.dbobject.Get("seenlog")
 
     @asyncio.coroutine
@@ -96,11 +142,11 @@ class Seen(GeneralMessageEvent):
         Loggiz.L.Print(self.messageobject.text)
         user = self.seendb.usercounter.Get()
         found = None
-        m = re.search('^(!seen)\s(.*)[$\s.]+$', self.messageobject.text)
+        m = re.search('^({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
         if m is not None:
             found = m.groups()
         else:
-            m = re.search('^(!seen)\s(.*)$', self.messageobject.text)
+            m = re.search('^({})\s(.*)$'.format(self.keyword), self.messageobject.text)
             if m is not None:
                 found = m.groups()
         if found is not None:
@@ -113,20 +159,20 @@ class Seen(GeneralMessageEvent):
 
 
 class QuoteBase(GeneralMessageEvent):
-    def __init__(self, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
         self.uindex = self.dbobject.Get("userindex")
 
 
 class AddQuote(QuoteBase):
-    def __init__(self, bot, dbobject, messageobject):
-        QuoteBase.__init__(self, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        QuoteBase.__init__(self, keyword, bot, dbobject, messageobject)
 
     @asyncio.coroutine
     def run(self):
         new_quote_index = str(uuid.uuid4())
 
-        m = re.search('^(!addquote)\s+(.*): (.*)$', self.messageobject.text)
+        m = re.search('^({})\s+(.*): (.*)$'.format(self.keyword), self.messageobject.text)
         if m is not None:
             found = m.groups()
             if len(found) != 3:
@@ -149,8 +195,8 @@ class AddQuote(QuoteBase):
 
 
 class Quote(QuoteBase):
-    def __init__(self, bot, dbobject, messageobject):
-        QuoteBase.__init__(self, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        QuoteBase.__init__(self, keyword, bot, dbobject, messageobject)
 
     def get_quote(self, username):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
@@ -168,9 +214,9 @@ class Quote(QuoteBase):
     def run(self):
         quoteoutput = None
         found = None
-        qsentence = re.search('^.*(!quote)\s(.*)[$\s.]+$', self.messageobject.text)
-        qdirect = re.search('.*(!quote)\s(.*)$', self.messageobject.text)
-        qsingle = re.search('^(!quote)$', self.messageobject.text)
+        qsentence = re.search('^.*({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
+        qdirect = re.search('.*({})\s(.*)$'.format(self.keyword), self.messageobject.text)
+        qsingle = re.search('^({})$'.format(self.keyword), self.messageobject.text)
         if qsentence is not None:
             found = qsentence.groups()
             Loggiz.L.info("quote found in sentence")

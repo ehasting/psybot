@@ -66,21 +66,23 @@ class UserTracker(telepot.async.helper.ChatHandler):
         Loggiz.L.info("Incomming message: {}".format(str(msg)))
         if msg.get("text"):
             currentmessage = TelepotObjects.MessageObject.CreateFromMessage(msg)
-            cnt = yield from Commands.Counter(self.sender, self.db, currentmessage).run()
+            cnt = yield from Commands.Counter("NoCommand", self.sender, self.db, currentmessage).run()
             Loggiz.L.Print(currentmessage.text)
             if currentmessage.text.startswith("!seen"):
-                a = yield from Commands.Seen(self.sender, self.db, currentmessage).run()
+                a = yield from Commands.Seen("!seen", self.sender, self.db, currentmessage).run()
             elif currentmessage.text.startswith("!addquote"):
-                a = yield from Commands.AddQuote(self.sender, self.db, currentmessage).run()
+                a = yield from Commands.AddQuote("!addquote", self.sender, self.db, currentmessage).run()
             elif currentmessage.text.startswith("!quote"):
-                a = yield from Commands.Quote(self.sender, self.db, currentmessage).run()
+                a = yield from Commands.Quote("!quote", self.sender, self.db, currentmessage).run()
+            elif currentmessage.text.startswith("!search"):
+                a = yield from Commands.WebSearchDuckDuckGo("!search", self.sender, self.db, currentmessage).run()
         flavor = telepot.flavor(msg)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--debug", dest="debug", action="store_true", default=False)
-    parser.add_argument('--token', dest='token', type=str, required=True)
+    #parser.add_argument('--token', dest='token', type=str, required=True)
     settings = parser.parse_args(sys.argv[1:])
     if settings.debug is True:
         Loggiz.L.setlevel(7)
@@ -89,9 +91,9 @@ if __name__ == '__main__':
 
 
     dbobject = Models.StaticModels()
-
-    #bot = telepot.async.DelegatorBot(T, [
-    bot = telepot.async.DelegatorBot(settings.token, [
+    T = "207157142:AAFnlgs6nFMYrYhrio9r5ArME8rpE8vUbKg"
+    bot = telepot.async.DelegatorBot(T, [
+    #bot = telepot.async.DelegatorBot(settings.token, [
         (per_chat_id(), create_open(UserTracker, timeout=30, dbobject=dbobject)),
     ])
     loop = asyncio.get_event_loop()
