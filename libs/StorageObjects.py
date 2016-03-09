@@ -84,7 +84,7 @@ class ComnodeObject(object):
     def IsEmpty(self, verbose=True):
         def Verbose():
             if verbose:
-                Loggiz.L.notice ("%s is empty" % self.Name())
+                Loggiz.L.notice("%s is empty" % self.Name())
 
         d = self.storage.GetData(self.datamodel, default=False)
         if d.Value is None:

@@ -1,18 +1,5 @@
 import datetime
-import sys
-import asyncio
-import telepot
-import datetime
-import time
-import re
-import uuid
-import random
-import argparse
-from telepot.async.delegate import per_from_id, create_open, per_chat_id
-import libs.Models as Models
-import libs.Loggiz as Loggiz
-import libs.SerializableDict as SerializableDict
-import libs.StorageObjects as StorageObjects
+
 '''
 Copyright (c) 2016, Egil Hasting
 All rights reserved.

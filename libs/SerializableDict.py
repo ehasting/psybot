@@ -34,6 +34,7 @@ __maintainer__ = "Egil Hasting"
 __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
 
+
 class SkyShellDict(object):
     class SubDict():
         def __init__(self, datastring="{}"):
@@ -109,8 +110,7 @@ class QuoteObject(SkyShellDictObject):
     anfirstname = "firstname"
     anquote = "quote"
     antimestamp = "timestamp"
-    
-    
+
     def Load(self):
         SkyShellDictObject.Load(self)
         self.counter = self.data.get(self.ancounter)
@@ -162,4 +162,4 @@ class UserObject(SkyShellDictObject):
 if __name__ == '__main__':
     d = SkyShellDictObject()
     d.name = "test"
-    print(d.SaveObject())
+    # print(d.SaveObject())
