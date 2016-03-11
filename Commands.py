@@ -204,7 +204,7 @@ class Quote(QuoteBase):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
         qmun = quotemetausername.Get()
         if len(qmun) > 0:
-            random.seed(calendar.timegm(time.strptime('Jul 9, 2009 @ 20:02:58 UTC', '%b %d, %Y @ %H:%M:%S UTC')))
+            random.seed(calendar.timegm(time.gmtime()))
             foundindex = random.randrange(0, len(qmun))
             Loggiz.L.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
@@ -235,7 +235,7 @@ class Quote(QuoteBase):
             userindexlength = len(self.uindex.index.Get())
             if userindexlength == 0:
                 return
-            random.seed(calendar.timegm(time.strptime('Jul 9, 2009 @ 20:02:58 UTC', '%b %d, %Y @ %H:%M:%S UTC')))
+            random.seed(calendar.timegm(time.gmtime()))
             luckyuser = random.randrange(0, userindexlength)
             if len(self.uindex.index.Get()) == luckyuser:
                 luckyuser = luckyuser - 1
