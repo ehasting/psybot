@@ -206,6 +206,7 @@ class Quote(QuoteBase):
         if len(qmun) > 0:
             random.seed(calendar.timegm(time.strptime('Jul 9, 2009 @ 20:02:58 UTC', '%b %d, %Y @ %H:%M:%S UTC')))
             foundindex = random.randrange(0, len(qmun))
+            Loggiz.L.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
