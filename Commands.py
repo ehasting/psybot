@@ -5,6 +5,8 @@ import requests
 import json
 import uuid
 import random
+import calendar
+import time
 import libs.TelepotObjects as TelepotObjects
 import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
@@ -202,6 +204,7 @@ class Quote(QuoteBase):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
         qmun = quotemetausername.Get()
         if len(qmun) > 0:
+            random.seed(calendar.timegm(time.strptime('Jul 9, 2009 @ 20:02:58 UTC', '%b %d, %Y @ %H:%M:%S UTC')))
             foundindex = random.randrange(0, len(qmun))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
@@ -231,6 +234,7 @@ class Quote(QuoteBase):
             userindexlength = len(self.uindex.index.Get())
             if userindexlength == 0:
                 return
+            random.seed(calendar.timegm(time.strptime('Jul 9, 2009 @ 20:02:58 UTC', '%b %d, %Y @ %H:%M:%S UTC')))
             luckyuser = random.randrange(0, userindexlength)
             if len(self.uindex.index.Get()) == luckyuser:
                 luckyuser = luckyuser - 1
