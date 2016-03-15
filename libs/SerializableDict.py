@@ -150,7 +150,7 @@ class UserObject(SkyShellDictObject):
     def Load(self):
         SkyShellDictObject.Load(self)
         self.counter = self.data.get(self.ancounter)
-        self.wordcounter = self.data.get(self.wordcounter)
+        self.wordcounter = self.data.get(self.anwordcounter)
         self.modified = self.data.get(self.anmodified)
         self.firstname = self.data.get(self.anfirstname)
         self.username = self.data.get(self.anusername)
