@@ -127,6 +127,8 @@ class Stats(GeneralMessageEvent):
         place = 1
         for key, user in sortedlist:
             username = key
+            if username = "":
+                continue
             usercountobject = SerializableDict.UserObject(user)
             output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
             place += 1
