@@ -137,6 +137,9 @@ class UserObject(SkyShellDictObject):
     anfirstname = "firstname"
     firstname = None
 
+    anlastname = "lastname"
+    lastname = None
+
     anusername = "username"
     username = None
 
@@ -153,6 +156,7 @@ class UserObject(SkyShellDictObject):
         self.wordcounter = self.data.get(self.anwordcounter)
         self.modified = self.data.get(self.anmodified)
         self.firstname = self.data.get(self.anfirstname)
+        self.lastname = self.data.get(self.anlastname)
         self.username = self.data.get(self.anusername)
 
     def Save(self):
@@ -161,6 +165,7 @@ class UserObject(SkyShellDictObject):
         self.data.set(self.anwordcounter, self.wordcounter)
         self.data.set(self.anmodified, self.modified)
         self.data.set(self.anfirstname, self.firstname)
+        self.data.set(self.anlastname, self.lastname)
         self.data.set(self.anusername, self.username)
         return self.data
 

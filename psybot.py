@@ -76,6 +76,8 @@ class UserTracker(telepot.async.helper.ChatHandler):
                 a = yield from Commands.Quote("!quote", self.sender, self.db, currentmessage).run()
             elif currentmessage.text.startswith("!search"):
                 a = yield from Commands.WebSearchDuckDuckGo("!search", self.sender, self.db, currentmessage).run()
+            elif currentmessage.text.startswith("!stats"):
+                a = yield from Commands.Stats("!stats", self.sender, self.db, currentmessage).run()
         flavor = telepot.flavor(msg)
 
 

@@ -102,16 +102,38 @@ class WebSearchDuckDuckGo(GeneralMessageEvent):
                 limitcounter = 0
                 for article in searchresult["RelatedTopics"]:
                     outputstring += article.get("Result", "") + "\n"
-                    d = article.get("Result", "") 
+                    d = article.get("Result", "")
                     if d == "":
                         print(article)
                     limitcounter += 1
                     if limitcounter == 3:
                         break
-                #Loggiz.L.info("{} |{} |{} |{} |".format(r.status_code, r.headers['content-type'], r.encoding, r.text, ))
                 yield from self.bot.sendMessage("{}".format(outputstring), parse_mode="HTML")
         else:
             Loggiz.L.err("Missing search term")
+
+
+class Stats(GeneralMessageEvent):
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+        self.seen = self.dbobject.Get("seenlog")
+        self.uindex = self.dbobject.Get("userindex")
+
+    @asyncio.coroutine
+    def run(self):
+        users = self.seen.usercounter.Get()
+        sortedlist = sorted(users.rawdict(), key=sort_by_word)
+        output_string = "Most Active User Stats (by words):<br />"
+        for key, user in sortedlist:
+            username = key
+            usercountobject = SerializableDict.UserObject(usercount)
+            output_string += "{}: {} (Lines: {})".format(username, usercountobject.wordcounter, usercountobject.counter)
+
+        yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
+
+    def sort_by_word(userdict):
+        usercountobject = SerializableDict.UserObject(userdict)
+        return usercountobject.wordcounter
 
 
 class Counter(GeneralMessageEvent):
@@ -139,7 +161,10 @@ class Counter(GeneralMessageEvent):
             usercountobject.wordcounter = usercountobject.wordcounter + len(currentwordcount)
         # Last seen
         usercountobject.modified = str(datetime.datetime.now().replace(microsecond=0))
-
+        # Metadata
+        usercountobject.firstname = self.messageobject.mfrom.firstname
+        usercountobject.lastname = self.messageobject.mfrom.lastname
+        usercountobject.username = self.messageobject.mfrom.username
         # Store object to dictionary and back to DB
         user.set(self.messageobject.mfrom.username, usercountobject.SaveObject())
         self.seen.usercounter.Set(user)
