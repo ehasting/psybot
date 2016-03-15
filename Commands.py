@@ -122,16 +122,19 @@ class Stats(GeneralMessageEvent):
     @asyncio.coroutine
     def run(self):
         users = self.seen.usercounter.Get()
-        sortedlist = sorted(users.rawdict(), key=self.sort_by_word)
-        output_string = "Most Active User Stats (by words):<br />"
+        sortedlist = sorted(users.rawdict(), key=self.sort_by_word, reverse=True)
+        output_string = "<b>Most Active User Stats (by words):</b>\n\n"
+        place = 1
         for key, user in sortedlist:
             username = key
-            usercountobject = SerializableDict.UserObject(usercount)
-            output_string += "{}: {} (Lines: {})<br />".format(username, usercountobject.wordcounter, usercountobject.counter)
-        print(output_string)
+            usercountobject = SerializableDict.UserObject(user)
+            output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
+            place += 1
+        Loggiz.L.info(output_string)
         yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
 
-    def sort_by_word(userdict):
+    @classmethod
+    def sort_by_word(cls, userdict):
         usercountobject = SerializableDict.UserObject(userdict)
         return usercountobject.wordcounter
 
@@ -177,6 +180,7 @@ class Seen(GeneralMessageEvent):
 
     @asyncio.coroutine
     def run(self):
+        Loggiz.L.info("Gettings Stats")
         Loggiz.L.Print(self.messageobject.text)
         user = self.seendb.usercounter.Get()
         found = None

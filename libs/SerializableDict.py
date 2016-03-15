@@ -63,7 +63,7 @@ class SkyShellDict(object):
         return str(self.data)
 
     def rawdict(self):
-        return self.data.iteritems()
+        return self.data.items()
 
     def get(self, key):
         retd = self.data.get(key, "{}")

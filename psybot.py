@@ -84,17 +84,18 @@ class UserTracker(telepot.async.helper.ChatHandler):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--debug", dest="debug", action="store_true", default=False)
-    parser.add_argument('--token', dest='token', type=str, required=True)
+    #parser.add_argument('--token', dest='token', type=str, required=True)
     settings = parser.parse_args(sys.argv[1:])
     if settings.debug is True:
         Loggiz.L.setlevel(7)
     else:
         Loggiz.L.setlevel(3)  # 3
 
+    T = "214276085:AAG5fqcTWnAIMbC3co5THYoj1icSA95T2bo"
 
     dbobject = Models.StaticModels()
-    #bot = telepot.async.DelegatorBot(T, [
-    bot = telepot.async.DelegatorBot(settings.token, [
+    bot = telepot.async.DelegatorBot(T, [
+    #bot = telepot.async.DelegatorBot(settings.token, [
         (per_chat_id(), create_open(UserTracker, timeout=30, dbobject=dbobject)),
     ])
     loop = asyncio.get_event_loop()
