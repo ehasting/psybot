@@ -138,7 +138,7 @@ class Counter(GeneralMessageEvent):
         else:
             usercountobject.wordcounter = usercountobject.wordcounter + len(currentwordcount)
         # Last seen
-        usercountobject.modified = str(datetime.datetime.now())
+        usercountobject.modified = str(datetime.datetime.now().replace(microsecond=0))
 
         # Store object to dictionary and back to DB
         user.set(self.messageobject.mfrom.username, usercountobject.SaveObject())
@@ -171,7 +171,7 @@ class Seen(GeneralMessageEvent):
             fetchseenuser = user.get(username)
             userseenobject = SerializableDict.UserObject(fetchseenuser)
             if userseenobject.modified != "":
-                yield from self.bot.sendMessage("hey! {} was last seen {} (Counter lines/words: {}/{})".format(username, userseenobject.modified, userseenobject.counter, userseenobject.wordcounter))
+                yield from self.bot.sendMessage("hey! {} was last seen {} (lines/words: {}/{})".format(username, userseenobject.modified, userseenobject.counter, userseenobject.wordcounter))
             else:
                 Loggiz.L.Print("Did not find any user!")
 
