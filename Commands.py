@@ -132,6 +132,7 @@ class Counter(GeneralMessageEvent):
             usercountobject.counter = usercountobject.counter + 1
         # Word counter
         currentwordcount = re.findall('\w+', self.messageobject.text.lower())
+        print("Words: {}".format(len(wordcounter)))
         if usercountobject.wordcounter == "":
             usercountobject.wordcounter = len(currentwordcount)
         else:
