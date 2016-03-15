@@ -162,10 +162,15 @@ class Seen(GeneralMessageEvent):
             if m is not None:
                 found = m.groups()
         if found is not None:
+            username = found[1]
+            if username.startswith("@"):
+                # remove @
+                username = username[1:]
+
             fetchseenuser = user.get(found[1])
             userseenobject = SerializableDict.UserObject(fetchseenuser)
             if userseenobject.modified != "":
-                yield from self.bot.sendMessage("hey! {} was last seen {} (message count: {})".format(found[1], userseenobject.modified, userseenobject.counter))
+                yield from self.bot.sendMessage("hey! {} was last seen {} (Counter lines/words: {}/{})".format(found[1], userseenobject.modified, userseenobject.counter, userseenobject.wordcounter))
             else:
                 Loggiz.L.Print("Did not find any user!")
 
