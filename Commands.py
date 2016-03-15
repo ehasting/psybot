@@ -140,6 +140,20 @@ class Stats(GeneralMessageEvent):
         usercountobject = SerializableDict.UserObject(userdict)
         return usercountobject.wordcounter
 
+class Help(GeneralMessageEvent):
+    def __init__(self, keyword, bot, dbobject, messageobject):
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+
+    @asyncio.coroutine
+    def run(self, commands):
+        output_string = "<b>Available commands</b>\n"
+        output_string += commands
+        yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
+
+    @classmethod
+    def sort_by_word(cls, userdict):
+        usercountobject = SerializableDict.UserObject(userdict)
+        return usercountobject.wordcounter
 
 class Counter(GeneralMessageEvent):
     def __init__(self, keyword, bot, dbobject, messageobject):
