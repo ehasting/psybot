@@ -122,7 +122,7 @@ class Stats(GeneralMessageEvent):
     @asyncio.coroutine
     def run(self):
         users = self.seen.usercounter.Get()
-        sortedlist = sorted(users.rawdict(), key=self.sort_by_word, reverse=True)
+        sortedlist = sorted(users.rawdict(), key=self.sort_by_word)
         output_string = "<b>Most Active User Stats (by words):</b>\n\n"
         place = 1
         for key, user in sortedlist:
@@ -138,6 +138,8 @@ class Stats(GeneralMessageEvent):
     @classmethod
     def sort_by_word(cls, userdict):
         usercountobject = SerializableDict.UserObject(userdict)
+        if not isinstance(usercountobject.wordcounter, int):
+            return 1
         return usercountobject.wordcounter
 
 class Help(GeneralMessageEvent):
@@ -306,3 +308,7 @@ class Quote(QuoteBase):
         if found is not None:
             if quoteoutput is not None:
                 yield from self.bot.sendMessage(quoteoutput)
+
+
+if __name__ == '__main__':
+    pass
