@@ -124,12 +124,22 @@ class Counter(GeneralMessageEvent):
         user = self.seen.usercounter.Get()
         usercount = user.get(self.messageobject.mfrom.username)
         usercountobject = SerializableDict.UserObject(usercount)
+
+        # Line counter
         if usercountobject.counter == "":
             usercountobject.counter = 1
-            usercountobject.modified = str(datetime.datetime.now())
         else:
             usercountobject.counter = usercountobject.counter + 1
-            usercountobject.modified = str(datetime.datetime.now())
+        # Word counter
+        currentwordcount = re.findall('\w+', self.messageobject.text.lower())
+        if usercountobject.wordcounter == "":
+            usercountobject.wordcounter = len(currentwordcount)
+        else:
+            usercountobject.wordcounter = usercountobject.wordcounter + len(currentwordcount)
+        # Last seen
+        usercountobject.modified = str(datetime.datetime.now())
+
+        # Store object to dictionary and back to DB
         user.set(self.messageobject.mfrom.username, usercountobject.SaveObject())
         self.seen.usercounter.Set(user)
 
