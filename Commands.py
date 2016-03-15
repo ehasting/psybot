@@ -162,8 +162,8 @@ class Counter(GeneralMessageEvent):
         # Last seen
         usercountobject.modified = str(datetime.datetime.now().replace(microsecond=0))
         # Metadata
-        usercountobject.firstname = self.messageobject.mfrom.firstname
-        usercountobject.lastname = self.messageobject.mfrom.lastname
+        usercountobject.firstname = self.messageobject.mfrom.first_name
+        usercountobject.lastname = self.messageobject.mfrom.last_name
         usercountobject.username = self.messageobject.mfrom.username
         # Store object to dictionary and back to DB
         user.set(self.messageobject.mfrom.username, usercountobject.SaveObject())
