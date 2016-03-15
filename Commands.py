@@ -153,6 +153,8 @@ class Help(GeneralMessageEvent):
     @classmethod
     def sort_by_word(cls, userdict):
         usercountobject = SerializableDict.UserObject(userdict)
+        if usercountobject.wordcounter == "":
+            return 0
         return usercountobject.wordcounter
 
 class Counter(GeneralMessageEvent):
