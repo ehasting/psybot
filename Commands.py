@@ -122,10 +122,9 @@ class Stats(GeneralMessageEvent):
     @asyncio.coroutine
     def run(self):
         users = self.seen.usercounter.Get()
-        sortedlist = sorted(users.rawdict(), key=self.sort_by_word)
         output_string = "<b>Most Active User Stats (by words):</b>\n\n"
         place = 1
-        for key, user in sortedlist:
+        for key, user in sorted(users.rawdict(), key=self.sort_by_word):
             username = key
             if username == "":
                 continue
