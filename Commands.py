@@ -139,9 +139,10 @@ class Stats(GeneralMessageEvent):
     @asyncio.coroutine
     def run(self):
         users = self.seen.usercounter.Get()
+        data = users.rawdict()
         output_string = "<b>Most Active User Stats (by words):</b>\n\n"
         place = 1
-        for key, user in sorted(users.rawdict(), key=self.sort_by_word):
+        for key, user in sorted(data, key=self.sort_by_word):
             username = key
             if username == "":
                 continue
@@ -152,6 +153,7 @@ class Stats(GeneralMessageEvent):
         yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
 
     def sort_by_word(self, userdict):
+        Loggiz.L.info(userdict)
         usercountobject = SerializableDict.UserObject(userdict)
         if not isinstance(usercountobject.wordcounter, int):
             return 1
