@@ -122,10 +122,10 @@ class Time(GeneralMessageEvent):
     def run(self):
         currenttz = time.tzname
         out = "<b>Current Time</b>\n"
-        out += str(time.strftime('%X %x %Z')) + "\n"
+        out += "Norway: " + str(time.strftime('%X %x %Z')) + "\n"
         os.environ['TZ'] = 'US/Eastern'
         time.tzset()
-        out += str(time.strftime('%X %x %Z')) + "\n"
+        out += "Baltimore: " + str(time.strftime('%X %x %Z')) + "\n"
         Loggiz.L.info(out)
         yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
 
@@ -151,7 +151,6 @@ class Stats(GeneralMessageEvent):
         Loggiz.L.info(output_string)
         yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
 
-    @asyncio.coroutine
     def sort_by_word(self, userdict):
         usercountobject = SerializableDict.UserObject(userdict)
         if not isinstance(usercountobject.wordcounter, int):
