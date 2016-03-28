@@ -153,12 +153,11 @@ class Stats(GeneralMessageEvent):
         yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
 
     def sort_by_word(self, userdict):
-        for key, value in userdict.items():
-            usercountobject = SerializableDict.UserObject(value)
-            if not isinstance(usercountobject.wordcounter, int):
-                return 1
-            Loggiz.L.info(usercountobject.wordcounter)
-            return usercountobject.wordcounter
+        usercountobject = SerializableDict.UserObject(userdict[1])
+        if not isinstance(usercountobject.wordcounter, int):
+            return 1
+        Loggiz.L.info(usercountobject.wordcounter)
+        return usercountobject.wordcounter
 
 
 class Help(GeneralMessageEvent):
