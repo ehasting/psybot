@@ -155,7 +155,9 @@ class Stats(GeneralMessageEvent):
         usercountobject = SerializableDict.UserObject(userdict)
         if not isinstance(usercountobject.wordcounter, int):
             return 1
+        Loggiz.L.info(usercountobject.wordcounter)
         return usercountobject.wordcounter
+
 
 class Help(GeneralMessageEvent):
     def __init__(self, keyword, bot, dbobject, messageobject):
