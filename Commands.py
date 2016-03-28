@@ -120,7 +120,7 @@ class Time(GeneralMessageEvent):
 
     @asyncio.coroutine
     def run(self):
-        currenttz = time.tzname¶
+        currenttz = time.tzname
         out = "<b>Current Time</b>\n"
         out += str(time.strftime('%X %x %Z'))
         os.environ['TZ'] = 'US/Eastern'
