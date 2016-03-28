@@ -142,7 +142,7 @@ class Stats(GeneralMessageEvent):
         data = users.rawdict()
         output_string = "<b>Most Active User Stats (by words):</b>\n\n"
         place = 1
-        for key, user in sorted(data, key=self.sort_by_word):
+        for key, user in sorted(data, key=self.sort_by_word, reverse=True):
             username = key
             if username == "":
                 continue
