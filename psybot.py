@@ -79,7 +79,9 @@ class UserTracker(telepot.async.helper.ChatHandler):
             elif currentmessage.text.startswith("!stats"):
                 a = yield from Commands.Stats("!stats", self.sender, self.db, currentmessage).run()
             elif currentmessage.text.startswith("!help"):
-                a = yield from Commands.Help("!help", self.sender, self.db, currentmessage).run("!seen, !addquote, !quote, !search, !stats, !help")
+                a = yield from Commands.Help("!help", self.sender, self.db, currentmessage).run("!seen, !addquote, !quote, !search, !stats, !help, !time")
+            elif currentmessage.text.startswith("!time"):
+                a = yield from Commands.Time("!time", self.sender, self.db, currentmessage).run()
         flavor = telepot.flavor(msg)
 
 

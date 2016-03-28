@@ -113,6 +113,25 @@ class WebSearchDuckDuckGo(GeneralMessageEvent):
             Loggiz.L.err("Missing search term")
 
 
+class Time(GeneralMessageEvent):
+    def __init__(self, keyword, bot, dbobject, messageobject)
+        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+
+    @asyncio.coroutine
+    def run(self):
+        out = "<b>Current Time</b>\n"
+        os.environ['TZ'] = 'US/Eastern'
+        time.tzset()
+        time.tzname
+        out += str(time.strftime('%X %x %Z')) + "\n"
+        os.environ['TZ'] = 'Oslo'
+        time.tzset()
+        time.tzname
+        out += str(time.strftime('%X %x %Z'))
+        Loggiz.L.info(out)
+        yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
+
+
 class Stats(GeneralMessageEvent):
     def __init__(self, keyword, bot, dbobject, messageobject):
         GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
