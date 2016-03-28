@@ -122,7 +122,7 @@ class Time(GeneralMessageEvent):
     def run(self):
         currenttz = time.tzname
         out = "<b>Current Time</b>\n"
-        out += str(time.strftime('%X %x %Z'))
+        out += str(time.strftime('%X %x %Z')) + "\n"
         os.environ['TZ'] = 'US/Eastern'
         time.tzset()
         out += str(time.strftime('%X %x %Z')) + "\n"
