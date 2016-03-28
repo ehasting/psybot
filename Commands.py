@@ -151,8 +151,8 @@ class Stats(GeneralMessageEvent):
         Loggiz.L.info(output_string)
         yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
 
-    @classmethod
-    def sort_by_word(cls, userdict):
+    @asyncio.coroutine
+    def sort_by_word(self, userdict):
         usercountobject = SerializableDict.UserObject(userdict)
         if not isinstance(usercountobject.wordcounter, int):
             return 1
