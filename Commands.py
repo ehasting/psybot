@@ -114,7 +114,7 @@ class WebSearchDuckDuckGo(GeneralMessageEvent):
 
 
 class Time(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, keyword, bot, dbobject, messageobject):
         GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
 
     @asyncio.coroutine
