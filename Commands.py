@@ -120,16 +120,12 @@ class Time(GeneralMessageEvent):
 
     @asyncio.coroutine
     def run(self):
-        currenttz = os.environ['TZ']
+        currenttz = time.tzname¶
         out = "<b>Current Time</b>\n"
+        out += str(time.strftime('%X %x %Z'))
         os.environ['TZ'] = 'US/Eastern'
         time.tzset()
-        time.tzname
         out += str(time.strftime('%X %x %Z')) + "\n"
-        os.environ['TZ'] = currenttz
-        time.tzset()
-        time.tzname
-        out += str(time.strftime('%X %x %Z'))
         Loggiz.L.info(out)
         yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
 
