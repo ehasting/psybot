@@ -127,7 +127,7 @@ class Time(GeneralMessageEvent):
         baltimore = pytz.timezone('US/Eastern')
 
         localtime = home.normalize(home.localize(localtime))
-        baltimoretime = baltimore.localize(localtime)
+        baltimoretime = localtime.astimezone(baltimore)
         out = "<b>Current Time</b>\n"
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
         out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
