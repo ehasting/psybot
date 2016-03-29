@@ -124,13 +124,16 @@ class Time(GeneralMessageEvent):
     def run(self):
         localtime = datetime.datetime.now()
         home = pytz.timezone("Europe/Oslo")
-        baltimore = pytz.timezone('US/Eastern')
+        baltimore = pytz.timezone("US/Eastern")
+        denver = pytz.timezone("America/Denver")
 
         localtime = home.normalize(home.localize(localtime))
         baltimoretime = localtime.astimezone(baltimore)
+        denvertime = localtime.astimezone(denver)
         out = "<b>Current Time</b>\n"
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
         out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
+        out += "Denver: " + str(denvertime.strftime('%X %x %Z')) + "\n"
         Loggiz.L.info(out)
         yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
 
