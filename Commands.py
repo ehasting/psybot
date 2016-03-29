@@ -14,6 +14,8 @@ import libs.StorageObjects as StorageObjects
 import libs.Loggiz as Loggiz
 import libs.Models as Models
 import telepot.helper
+from pytz import timezone
+import pytz
 '''
 Copyright (c) 2016, Egil Hasting
 All rights reserved.
@@ -120,12 +122,15 @@ class Time(GeneralMessageEvent):
 
     @asyncio.coroutine
     def run(self):
-        currenttz = time.tzname
+        localtime = datetime.datetime.now()
+        home = pytz.timezone("Europe/Oslo")
+        baltimore = pytz.timezone('US/Eastern')
+
+        localtime = home.normalize(home.localize(localtime))
+        baltimoretime = baltimore.normalize(baltimore.localize(localtime))
         out = "<b>Current Time</b>\n"
-        out += "Norway: " + str(time.strftime('%X %x %Z')) + "\n"
-        os.environ['TZ'] = 'US/Eastern'
-        time.tzset()
-        out += "Baltimore: " + str(time.strftime('%X %x %Z')) + "\n"
+        out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
+        out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
         Loggiz.L.info(out)
         yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
 
