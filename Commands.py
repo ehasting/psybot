@@ -10,6 +10,7 @@ import time
 import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
 import libs.Models as Models
+import libs.Loggiz as Loggiz
 from pytz import timezone
 import pytz
 import telegram
@@ -51,12 +52,8 @@ __status__ = "Production"
 #         self.db = dbobject
  #       self.uindex = dbobject.Get("userindex")
 class GeneralMessageEvent(object):
-    def __init__(self, logger):
+    def __init__(self):
         self.dbobject = Models.StaticModels()
-        if logger is None:
-            self.logger = logging.getLogger(__name__)
-        else:
-            self.logger = logger
 
     def run(self, bot, update, args):
         raise NotImplementedError()
@@ -71,16 +68,16 @@ class GeneralMessageEvent(object):
 
 
 class Null(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
 
     def run(self, bot, update, args):
         pass
 
 
 class WebSearchDuckDuckGo(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
 
     def _generate_url(self, searchstring):
         searchstring = searchstring.replace(" ", "+")
@@ -106,8 +103,8 @@ class WebSearchDuckDuckGo(GeneralMessageEvent):
 
 
 class Time(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
 
     def run(self, bot, update, args):
         localtime = datetime.datetime.now()
@@ -136,13 +133,13 @@ class Time(GeneralMessageEvent):
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
         out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
         out += "Denver: " + str(denvertime.strftime('%X %x %Z')) + "\n"
-        self.logger.info(out)
+        Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
 
 class Stats(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
 
@@ -158,20 +155,20 @@ class Stats(GeneralMessageEvent):
             usercountobject = SerializableDict.UserObject(user)
             output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
             place += 1
-        self.logger.info(output_string)
+        Loggiz.log.write.info(output_string)
         bot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
 
     def sort_by_word(self, userdict):
         usercountobject = SerializableDict.UserObject(userdict[1])
         if not isinstance(usercountobject.wordcounter, int):
             return 1
-        self.logger.info(usercountobject.wordcounter)
+        Loggiz.log.write.info(usercountobject.wordcounter)
         return usercountobject.wordcounter
 
 
 class Help(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
 
     def run(self, bot, update, args):
         output_string = "<b>Available commands</b>\n"
@@ -186,16 +183,16 @@ class Help(GeneralMessageEvent):
         return usercountobject.wordcounter
 
 class AudioTips(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
         self.tipdb = self.dbobject.Get("tipdb")
 
 
 
 
 class Counter(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
         self.seen = self.dbobject.Get("seenlog")
 
     def run(self, bot, update, args):
@@ -227,43 +224,44 @@ class Counter(GeneralMessageEvent):
 
 
 class Seen(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
         self.seendb = self.dbobject.Get("seenlog")
 
     def run(self, bot, update, args):
-        self.logger.info("Gettings Stats")
+        Loggiz.log.write.info("Gettings Stats")
         user = self.seendb.usercounter.Get()
 
         if len(args) > 0:
-            self.logger.info("finding user {}".format(args[0]))
+            Loggiz.log.write.info("finding user {}".format(args[0]))
             username = self.stripusername(args[0])
 
             fetchseenuser = user.get(username)
             userseenobject = SerializableDict.UserObject(fetchseenuser)
-            self.logger.info(userseenobject.timestamp)
+            Loggiz.log.write.info(userseenobject.timestamp)
             if userseenobject.timestamp != "":
                 bot.sendMessage(update.message.chat_id, text="hey! {} was last seen {} (lines/words: {}/{})".format(username, userseenobject.timestamp, userseenobject.counter, userseenobject.wordcounter))
             else:
-                self.logger.warn("Did not find any user info!")
+                Loggiz.log.write.warn("Did not find any user info!")
         else:
             bot.sendMessage(update.message.chat_id, text="{} U ale wlong!! do like this!! command @<username>".format(telegram.Emoji.PILE_OF_POO))
 
 
 class QuoteBase(GeneralMessageEvent):
-    def __init__(self, logger):
-        GeneralMessageEvent.__init__(self, logger)
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
         self.uindex = self.dbobject.Get("userindex")
 
 
 class AddQuote(QuoteBase):
-    def __init__(self, logger):
-        QuoteBase.__init__(self, logger)
+    def __init__(self):
+        QuoteBase.__init__(self)
 
     def run(self, bot, update, args):
         new_quote_index = str(uuid.uuid4())
 
-        if len(args) != 2:
+        if len(args) < 2:
+            Loggiz.log.write.info("Argument length was {}".format(len(args)))
             bot.sendMessage(update.message.chat_id, text='[USAGE] <username> <quote>')
         else:
             username = self.stripusername(args[0])
@@ -271,9 +269,9 @@ class AddQuote(QuoteBase):
                 tmplist = self.uindex.index.Get()
                 tmplist.append(args[1])
                 self.uindex.index.Set(tmplist)
-                self.logger.info("user/nick added to index")
+                Loggiz.log.write.info("user/nick added to index")
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "str", desc="", hidden=False)
-            quotetext.Set(args[1])
+            quotetext.Set(" ".join(args[1:]))
 
             quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
             qmun = quotemetausername.Get()
@@ -284,8 +282,8 @@ class AddQuote(QuoteBase):
 
 
 class Quote(QuoteBase):
-    def __init__(self, logger):
-        QuoteBase.__init__(self, logger)
+    def __init__(self):
+        QuoteBase.__init__(self)
 
     def get_quote(self, username):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
@@ -293,7 +291,7 @@ class Quote(QuoteBase):
         if len(qmun) > 0:
             random.seed(calendar.timegm(time.gmtime()))
             foundindex = random.randrange(0, len(qmun))
-            self.logger.info("found: {}, total: {}".format(foundindex, len(qmun)))
+            Loggiz.log.write.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)

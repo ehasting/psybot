@@ -58,7 +58,7 @@ Tracks user and quotes.
 
 
 def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
+    Loggiz.log.write.warn('Update "%s" caused error "%s"' % (update, error))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -72,23 +72,23 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(
                             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                            level=logging.ERROR)
+                            level=logging.WARN)
 
     logger = logging.getLogger(__name__)
-    libs.Comnodestorage.setlogger(logger)
+    libs.Loggiz.log.set(logger)
     logger.info('Starting Bot ...')
-    updater = Updater(settings.token)
+    updater = Updater("207157142:AAFnlgs6nFMYrYhrio9r5ArME8rpE8vUbKg") #settings.token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.addTelegramCommandHandler("seen", Commands.Seen(logger).run)
-    dp.addTelegramCommandHandler("addquote", Commands.AddQuote(logger).run)
-    dp.addTelegramCommandHandler("quote", Commands.Quote(logger).run)
-    dp.addTelegramCommandHandler("stats", Commands.Stats(logger).run)
-    dp.addTelegramCommandHandler("time", Commands.Time(logger).run)
-    dp.addTelegramCommandHandler("search", Commands.WebSearchDuckDuckGo(logger).run)
+    dp.addTelegramCommandHandler("seen", Commands.Seen().run)
+    dp.addTelegramCommandHandler("addquote", Commands.AddQuote().run)
+    dp.addTelegramCommandHandler("quote", Commands.Quote().run)
+    dp.addTelegramCommandHandler("stats", Commands.Stats().run)
+    dp.addTelegramCommandHandler("time", Commands.Time().run)
+    dp.addTelegramCommandHandler("search", Commands.WebSearchDuckDuckGo().run)
 
     # on noncommand i.e message - echo the message on Telegram
     dp.addTelegramMessageHandler(Commands.Counter().run)
