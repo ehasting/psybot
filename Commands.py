@@ -291,13 +291,14 @@ class Quote(QuoteBase):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
         qmun = quotemetausername.Get()
         if len(qmun) > 0:
-            random.seed(calendar.timegm(time.gmtime()))
             foundindex = random.randrange(0, len(qmun))
             Loggiz.log.write.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
             if qmun[foundindex] in self.taken:
+                Loggiz.log.write.info("{} is taken".format(qmun[foundindex]))
                 return "TAKEN"
+
             else:
                 quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
                 self.taken.append(qmun[foundindex])
