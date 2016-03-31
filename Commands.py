@@ -328,7 +328,7 @@ class Quote(QuoteBase):
                 elif currentquote is None:
                     continue
                 quoteoutput += currentquote
-                if nums == cnt:
+                if nums < cnt:
                     break
                 cnt += 1
         else:
