@@ -334,7 +334,7 @@ class Quote(QuoteBase):
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     continue
                 quoteoutput += "{} {}\n".format(telegram.Emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
-                if len(self.taken) > num:
+                if len(self.taken) > nums:
                     break
 
         else:
