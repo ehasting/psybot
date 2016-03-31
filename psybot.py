@@ -10,7 +10,6 @@ import libs.Models as Models
 import libs.Loggiz as Loggiz
 import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
-import libs.TelepotObjects as TelepotObjects
 import libs.Comnodestorage
 import Commands
 from telegram.ext import Updater
