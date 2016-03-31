@@ -325,6 +325,8 @@ class Quote(QuoteBase):
                 currentquote = self.get_quote(self.findrandomuser())
                 if currentquote == "TAKEN":
                     continue
+                elif currentquote is None:
+                    continue
                 quoteoutput += currentquote
                 if nums == cnt:
                     break
