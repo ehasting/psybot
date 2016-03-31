@@ -324,11 +324,14 @@ class Quote(QuoteBase):
             cnt = 0
             Loggiz.log.write.info("Args {}".format(str(args)))
             while True:
-                currentquote = self.get_quote(self.findrandomuser())
+                randomuser = self.findrandomuser()
+                currentquote = self.get_quote(randomuser)
                 if currentquote == "TAKEN":
+                    Loggiz.log.write.info("Quote Taken")
                     cnt -= 1
                     continue
                 elif currentquote is None:
+                    Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     continue
                 quoteoutput += "{} {}\n".format(telegram.Emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
                 if nums < cnt:
