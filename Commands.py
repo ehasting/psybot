@@ -267,7 +267,7 @@ class AddQuote(QuoteBase):
             username = self.stripusername(args[0])
             if username not in self.uindex.index.Get():
                 tmplist = self.uindex.index.Get()
-                tmplist.append(args[1])
+                tmplist.append(username)
                 self.uindex.index.Set(tmplist)
                 Loggiz.log.write.info("user/nick added to index")
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "str", desc="", hidden=False)
