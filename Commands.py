@@ -285,6 +285,7 @@ class Quote(QuoteBase):
     def __init__(self):
         QuoteBase.__init__(self)
         self.taken = list()
+        random.seed(calendar.timegm(time.gmtime()))
 
     def get_quote(self, username):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
@@ -308,7 +309,6 @@ class Quote(QuoteBase):
         userindexlength = len(self.uindex.index.Get())
         if userindexlength == 0:
             return
-        random.seed(calendar.timegm(time.gmtime()))
         luckyuser = random.randrange(0, userindexlength)
         if len(self.uindex.index.Get()) == luckyuser:
             luckyuser = luckyuser - 1
@@ -319,22 +319,26 @@ class Quote(QuoteBase):
         if len(args) == 1:
             quoteoutput = "<b>{} random Quotes</b>\n"
             nums = int(args[0])
+            if nums > 10:
+                nums = 10
             cnt = 0
             Loggiz.log.write.info("Args {}".format(str(args)))
             while True:
                 currentquote = self.get_quote(self.findrandomuser())
                 if currentquote == "TAKEN":
+                    cnt -= 1
                     continue
                 elif currentquote is None:
                     continue
-                quoteoutput += currentquote
+                quoteoutput += "{} {}\n".format(telegram.emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
                 if nums < cnt:
                     break
                 cnt += 1
         else:
             quoteoutput = self.get_quote(self.findrandomuser())
         if quoteoutput is not None:
-            bot.sendMessage(update.message.chat_id, text=quoteoutput)
+            Loggiz.log.write.info(str(self.taken))
+            bot.sendMessage(update.message.chat_id, text=quoteoutput, parse_mode="HTML")
 
 
 if __name__ == '__main__':
