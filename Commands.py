@@ -320,6 +320,7 @@ class Quote(QuoteBase):
             quoteoutput = "<b>{} random Quotes</b>\n"
             nums = int(args[0])
             cnt = 0
+            Loggiz.log.write.info("Args {}".format(str(args)))
             while True:
                 currentquote = self.get_quote(self.findrandomuser())
                 if currentquote == "TAKEN":
