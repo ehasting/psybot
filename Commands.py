@@ -318,26 +318,25 @@ class Quote(QuoteBase):
     def run(self, bot, update, args):
 
         if len(args) == 1:
-            quoteoutput = "<b>{} random Quotes</b>\n"
+            
             nums = int(args[0])
             if nums > 10:
                 nums = 10
-            cnt = 0
-            Loggiz.log.write.info("Args {}".format(str(args)))
+            quoteoutput = "<b>{} random Quotes</b>\n".format(nums)
+            Loggiz.log.write.info("Args {} converted to {}".format(str(args), nums))
             while True:
                 randomuser = self.findrandomuser()
                 currentquote = self.get_quote(randomuser)
                 if currentquote == "TAKEN":
                     Loggiz.log.write.info("Quote Taken")
-                    cnt -= 1
                     continue
                 elif currentquote is None:
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     continue
                 quoteoutput += "{} {}\n".format(telegram.Emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
-                if nums < cnt:
+                if len(self.taken) > num:
                     break
-                cnt += 1
+
         else:
             quoteoutput = self.get_quote(self.findrandomuser())
         if quoteoutput is not None:
