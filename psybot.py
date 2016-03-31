@@ -77,7 +77,7 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     libs.Loggiz.log.set(logger)
     logger.info('Starting Bot ...')
-    updater = Updater("207157142:AAFnlgs6nFMYrYhrio9r5ArME8rpE8vUbKg") #settings.token)
+    updater = Updater(settings.token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
