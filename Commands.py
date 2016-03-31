@@ -284,6 +284,7 @@ class AddQuote(QuoteBase):
 class Quote(QuoteBase):
     def __init__(self):
         QuoteBase.__init__(self)
+        self.taken = list()
 
     def get_quote(self, username):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
@@ -294,23 +295,41 @@ class Quote(QuoteBase):
             Loggiz.log.write.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
-            quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
+            if qmun[foundindex] in self.taken:
+                return "TAKEN"
+            else:
+                quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
+                self.taken.append(qmun[foundindex])
             return "{}: {}".format(username, quotetext.Get())
         else:
             return None
 
+    def findrandomuser(self):
+        userindexlength = len(self.uindex.index.Get())
+        if userindexlength == 0:
+            return
+        random.seed(calendar.timegm(time.gmtime()))
+        luckyuser = random.randrange(0, userindexlength)
+        if len(self.uindex.index.Get()) == luckyuser:
+            luckyuser = luckyuser - 1
+        return self.uindex.index.Get()[luckyuser]
+
     def run(self, bot, update, args):
+
         if len(args) == 1:
-            quoteoutput = self.get_quote(args[0])
+            quoteoutput = "<b>{} random Quotes</b>\n"
+            nums = int(args[0])
+            cnt = 0
+            while True:
+                currentquote = self.get_quote(self.findrandomuser())
+                if currentquote == "TAKEN":
+                    continue
+                quoteoutput += currentquote
+                if nums == cnt:
+                    break
+                cnt += 1
         else:
-            userindexlength = len(self.uindex.index.Get())
-            if userindexlength == 0:
-                return
-            random.seed(calendar.timegm(time.gmtime()))
-            luckyuser = random.randrange(0, userindexlength)
-            if len(self.uindex.index.Get()) == luckyuser:
-                luckyuser = luckyuser - 1
-            quoteoutput = self.get_quote(self.uindex.index.Get()[luckyuser])
+            quoteoutput = self.get_quote(self.findrandomuser())
         if quoteoutput is not None:
             bot.sendMessage(update.message.chat_id, text=quoteoutput)
 
