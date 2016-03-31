@@ -330,7 +330,7 @@ class Quote(QuoteBase):
                     continue
                 elif currentquote is None:
                     continue
-                quoteoutput += "{} {}\n".format(telegram.emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
+                quoteoutput += "{} {}\n".format(telegram.Emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
                 if nums < cnt:
                     break
                 cnt += 1
