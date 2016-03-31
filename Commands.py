@@ -302,7 +302,7 @@ class Quote(QuoteBase):
             else:
                 quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
                 self.taken.append(qmun[foundindex])
-            return "{}: {}".format(username, quotetext.Get())
+            return "<i>{}</i>: {}".format(username, quotetext.Get())
         else:
             return None
 
@@ -333,7 +333,7 @@ class Quote(QuoteBase):
                 elif currentquote is None:
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     continue
-                quoteoutput += "{} {}\n".format(telegram.Emoji.CLOCK_FACE_ONE_OCLOCK, currentquote)
+                quoteoutput += "{} {}\n".format(telegram.Emoji.CACTUS, currentquote)
                 if len(self.taken) >= nums:
                     break
 
