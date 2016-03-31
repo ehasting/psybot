@@ -1,20 +1,22 @@
 #!/usr/bin/python3
 import sys
-import asyncio
-import telepot
 import datetime
 import time
 import re
 import uuid
 import random
 import argparse
-from telepot.async.delegate import per_from_id, create_open, per_chat_id
 import libs.Models as Models
 import libs.Loggiz as Loggiz
 import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
 import libs.TelepotObjects as TelepotObjects
+import libs.Comnodestorage
 import Commands
+from telegram.ext import Updater
+import logging
+import telegram
+
 '''
 Copyright (c) 2016, Egil Hasting
 All rights reserved.
@@ -53,37 +55,11 @@ __status__ = "Production"
 $ python3.4 psybot.py --token <token>
 Tracks user and quotes.
 """
+# Enable logging
 
 
-class UserTracker(telepot.async.helper.ChatHandler):
-    def __init__(self, seed_tuple, timeout, dbobject):
-        super(UserTracker, self).__init__(seed_tuple, timeout)
-        self.db = dbobject
-        self.uindex = dbobject.Get("userindex")
-
-    @asyncio.coroutine
-    def on_chat_message(self, msg):
-        Loggiz.L.info("Incomming message: {}".format(str(msg)))
-        if msg.get("text"):
-            currentmessage = TelepotObjects.MessageObject.CreateFromMessage(msg)
-            cnt = yield from Commands.Counter("NoCommand", self.sender, self.db, currentmessage).run()
-            Loggiz.L.Print(currentmessage.text)
-            if currentmessage.text.startswith("!seen"):
-                a = yield from Commands.Seen("!seen", self.sender, self.db, currentmessage).run()
-            elif currentmessage.text.startswith("!addquote"):
-                a = yield from Commands.AddQuote("!addquote", self.sender, self.db, currentmessage).run()
-            elif currentmessage.text.startswith("!quote"):
-                a = yield from Commands.Quote("!quote", self.sender, self.db, currentmessage).run()
-            elif currentmessage.text.startswith("!search"):
-                a = yield from Commands.WebSearchDuckDuckGo("!search", self.sender, self.db, currentmessage).run()
-            elif currentmessage.text.startswith("!stats"):
-                a = yield from Commands.Stats("!stats", self.sender, self.db, currentmessage).run()
-            elif currentmessage.text.startswith("!help"):
-                a = yield from Commands.Help("!help", self.sender, self.db, currentmessage).run("!seen, !addquote, !quote, !search, !stats, !help, !time")
-            elif currentmessage.text.startswith("!time"):
-                a = yield from Commands.Time("!time", self.sender, self.db, currentmessage).run()
-        flavor = telepot.flavor(msg)
-
+def error(bot, update, error):
+    logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -91,19 +67,40 @@ if __name__ == '__main__':
     parser.add_argument('--token', dest='token', type=str, required=True)
     settings = parser.parse_args(sys.argv[1:])
     if settings.debug is True:
-        Loggiz.L.setlevel(7)
+        logging.basicConfig(
+                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                            level=logging.INFO)
     else:
-        Loggiz.L.setlevel(3)  # 3
+        logging.basicConfig(
+                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                            level=logging.ERROR)
 
-    dbobject = Models.StaticModels()
-    #bot = telepot.async.DelegatorBot(T, [
-    bot = telepot.async.DelegatorBot(settings.token, [
-        (per_chat_id(), create_open(UserTracker, timeout=30, dbobject=dbobject)),
-    ])
-    loop = asyncio.get_event_loop()
+    logger = logging.getLogger(__name__)
+    libs.Comnodestorage.setlogger(logger)
+    logger.info('Starting Bot ...')
+    updater = Updater(settings.token)
 
-    loop.create_task(bot.messageLoop())
-    Loggiz.L.Print('Starting Bot ...')
-    # Loggiz.L.Print(bot.getMe())
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
 
-    loop.run_forever()
+    # on different commands - answer in Telegram
+    dp.addTelegramCommandHandler("seen", Commands.Seen(logger).run)
+    dp.addTelegramCommandHandler("addquote", Commands.AddQuote(logger).run)
+    dp.addTelegramCommandHandler("quote", Commands.Quote(logger).run)
+    dp.addTelegramCommandHandler("stats", Commands.Stats(logger).run)
+    dp.addTelegramCommandHandler("time", Commands.Time(logger).run)
+    dp.addTelegramCommandHandler("search", Commands.WebSearchDuckDuckGo(logger).run)
+
+    # on noncommand i.e message - echo the message on Telegram
+    dp.addTelegramMessageHandler(Commands.Counter().run)
+
+    # log all errors
+    dp.addErrorHandler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()

@@ -3,7 +3,7 @@ import json
 import ast
 import os
 import sys
-import libs.Loggiz as Loggiz
+import logging
 import libs.SerializableDict as SerializableDict
 '''
 Copyright (c) 2016, Egil Hasting
@@ -38,6 +38,12 @@ __version__ = "1.0.0"
 __maintainer__ = "Egil Hasting"
 __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
+
+logger = logging.getLogger(__name__)
+
+
+def setlogger(_logger):
+    Comnodestorage.logger = _logger
 
 pathaccessfailed = False
 currentcheckpath = os.path.join(".")
@@ -144,9 +150,9 @@ class ConfigDatabase(object):
         if not dbset:
             if os.access(os.path.dirname(dbname), os.W_OK) is False:
                 if pathaccessfailed is False:
-                    Loggiz.L.debug("DB can't write to original path, storing in local path!")
+                    logger.debug("DB can't write to original path, storing in local path!")
                     pathaccessfailed = True
-                Loggiz.L.notice("Searching in path %s" % currentcheckpath)
+                logger.info("Searching in path %s" % currentcheckpath)
                 dbname = os.path.join(currentcheckpath, dbname)
             dbset = True
 
@@ -186,7 +192,7 @@ class ConfigDatabase(object):
                       "AND Key=\'%s\'" % (self.tablename, datamodel.CollectionName, datamodel.Key))
             d = c.fetchall()
             if len(d) > 1:
-                Loggiz.L.err("There are duplicates of %s.%s in your configuration!" % (datamodel.CollectionName, datamodel.Key))
+                logger.err("There are duplicates of %s.%s in your configuration!" % (datamodel.CollectionName, datamodel.Key))
             if default:
                 datamodel.ReturnDefault()
             else:
@@ -246,9 +252,9 @@ class ConfigDatabase(object):
                         print(str(sys.exc_info()[0]))
 
         except:
-            Loggiz.L.warn("Problem parsing, trying default unicode: %s %s" % (datamodel.Value, datamodel.ValueType))
+            logger.warn("Problem parsing, trying default unicode: %s %s" % (datamodel.Value, datamodel.ValueType))
         if datamodel.Value.__class__.__name__ != datamodel.ValueType:
-            Loggiz.L.warn("The value you are trying to set is not correct type, Value is %s attribute requires %s"
+            logger.warn("The value you are trying to set is not correct type, Value is %s attribute requires %s"
                                % (datamodel.Value.__class__.__name__, datamodel.ValueType))
             return False
         datamodel.DecodeData()
@@ -267,4 +273,4 @@ class ConfigDatabase(object):
             return False
 
 if __name__ == '__main__':
-    Loggiz.L.Print("no example made, exiting..")
+    logger.info("no example made, exiting..")

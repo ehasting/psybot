@@ -1,4 +1,4 @@
-import datetime
+bimport datetime
 
 '''
 Copyright (c) 2016, Egil Hasting

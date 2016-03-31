@@ -1,5 +1,4 @@
 import datetime
-import asyncio
 import re
 import os
 import requests
@@ -8,14 +7,13 @@ import uuid
 import random
 import calendar
 import time
-import libs.TelepotObjects as TelepotObjects
 import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
-import libs.Loggiz as Loggiz
 import libs.Models as Models
-import telepot.helper
 from pytz import timezone
 import pytz
+import telegram
+import logging
 '''
 Copyright (c) 2016, Egil Hasting
 All rights reserved.
@@ -50,78 +48,68 @@ __maintainer__ = "Egil Hasting"
 __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
 
-
+#         self.db = dbobject
+ #       self.uindex = dbobject.Get("userindex")
 class GeneralMessageEvent(object):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        self.keyword = keyword
-        self.dbobject = dbobject
-        self.messageobject = messageobject
-        self.bot = bot
-        self.isvalid = True
-        self._validate()
+    def __init__(self, logger):
+        self.dbobject = Models.StaticModels()
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
 
-    def _validate(self):
-        if self.keyword is None:
-            self.isvalid = False
-        if not isinstance(self.messageobject, TelepotObjects.MessageObject):
-            self.isvalid = False
-        if not isinstance(self.dbobject, Models.StaticModels):
-            self.isvalid = False
-        if not isinstance(self.bot, telepot.telepot.helper.Sender):
-            self.isvalid = False
-        if not self.isvalid:
-            Loggiz.L.err("GeneralMessageEvent() - Object did not validate")
-
-    @asyncio.coroutine
-    def run(self):
+    def run(self, bot, update, args):
         raise NotImplementedError()
+
+    @classmethod
+    def stripusername(self, username):
+        if username.startswith("@"):
+            # remove @
+            return username[1:]
+        else:
+            return username
+
+
+class Null(GeneralMessageEvent):
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
+
+    def run(self, bot, update, args):
+        pass
 
 
 class WebSearchDuckDuckGo(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
 
     def _generate_url(self, searchstring):
         searchstring = searchstring.replace(" ", "+")
         print(searchstring)
         return "http://api.duckduckgo.com/?q={}&format=json".format(searchstring)
 
-    @asyncio.coroutine
-    def run(self):
-        found = None
-        m = re.search('^({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
-        if m is not None:
-            found = m.groups()
-        else:
-            m = re.search('^({})\s(.*)$'.format(self.keyword), self.messageobject.text)
-            if m is not None:
-                found = m.groups()
-        if found is not None:
-            r = requests.get(self._generate_url(found[1]))
-            if r.status_code == 200:
-                searchresult = r.json()
-                resultcount = len(searchresult["RelatedTopics"])
-                outputstring = "{} (found: {})\n".format(searchresult["Heading"], resultcount)
-                limitcounter = 0
-                for article in searchresult["RelatedTopics"]:
-                    outputstring += article.get("Result", "") + "\n"
-                    d = article.get("Result", "")
-                    if d == "":
-                        print(article)
-                    limitcounter += 1
-                    if limitcounter == 3:
-                        break
-                yield from self.bot.sendMessage("{}".format(outputstring), parse_mode="HTML")
-        else:
-            Loggiz.L.err("Missing search term")
+    def run(self, bot, update, args):
+        r = requests.get(self._generate_url(" ".join(args)))
+        if r.status_code == 200:
+            searchresult = r.json()
+            resultcount = len(searchresult["RelatedTopics"])
+            outputstring = "{} (found: {})\n".format(searchresult["Heading"], resultcount)
+            limitcounter = 0
+            for article in searchresult["RelatedTopics"]:
+                outputstring += article.get("Result", "") + "\n"
+                d = article.get("Result", "")
+                if d == "":
+                    print(article)
+                limitcounter += 1
+                if limitcounter == 3:
+                    break
+            bot.sendMessage(update.message.chat_id, text="{}".format(outputstring), parse_mode="HTML")
 
 
 class Time(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
 
-    @asyncio.coroutine
-    def run(self):
+    def run(self, bot, update, args):
         localtime = datetime.datetime.now()
         home = pytz.timezone("Europe/Oslo")
         baltimore = pytz.timezone("US/Eastern")
@@ -130,22 +118,35 @@ class Time(GeneralMessageEvent):
         localtime = home.normalize(home.localize(localtime))
         baltimoretime = localtime.astimezone(baltimore)
         denvertime = localtime.astimezone(denver)
+        '''
+            CLOCK_FACE_ONE_OCLOCK = n(b'\xF0\x9F\x95\x90')
+            CLOCK_FACE_TWO_OCLOCK = n(b'\xF0\x9F\x95\x91')
+            CLOCK_FACE_THREE_OCLOCK = n(b'\xF0\x9F\x95\x92')
+            CLOCK_FACE_FOUR_OCLOCK = n(b'\xF0\x9F\x95\x93')
+            CLOCK_FACE_FIVE_OCLOCK = n(b'\xF0\x9F\x95\x94')
+            CLOCK_FACE_SIX_OCLOCK = n(b'\xF0\x9F\x95\x95')
+            CLOCK_FACE_SEVEN_OCLOCK = n(b'\xF0\x9F\x95\x96')
+            CLOCK_FACE_EIGHT_OCLOCK = n(b'\xF0\x9F\x95\x97')
+            CLOCK_FACE_NINE_OCLOCK = n(b'\xF0\x9F\x95\x98')
+            CLOCK_FACE_TEN_OCLOCK = n(b'\xF0\x9F\x95\x99')
+            CLOCK_FACE_ELEVEN_OCLOCK = n(b'\xF0\x9F\x95\x9A')
+            CLOCK_FACE_TWELVE_OCLOCK = n(b'\xF0\x9F\x95\x9B')
+    '''
         out = "<b>Current Time</b>\n"
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
         out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
         out += "Denver: " + str(denvertime.strftime('%X %x %Z')) + "\n"
-        Loggiz.L.info(out)
-        yield from self.bot.sendMessage("{}".format(out), parse_mode="HTML")
+        self.logger.info(out)
+        bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
 
 class Stats(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
 
-    @asyncio.coroutine
-    def run(self):
+    def run(self, bot, update, args):
         users = self.seen.usercounter.Get()
         data = users.rawdict()
         output_string = "<b>Most Active User Stats (by words):</b>\n\n"
@@ -157,26 +158,25 @@ class Stats(GeneralMessageEvent):
             usercountobject = SerializableDict.UserObject(user)
             output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
             place += 1
-        Loggiz.L.info(output_string)
-        yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
+        self.logger.info(output_string)
+        bot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
 
     def sort_by_word(self, userdict):
         usercountobject = SerializableDict.UserObject(userdict[1])
         if not isinstance(usercountobject.wordcounter, int):
             return 1
-        Loggiz.L.info(usercountobject.wordcounter)
+        self.logger.info(usercountobject.wordcounter)
         return usercountobject.wordcounter
 
 
 class Help(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
 
-    @asyncio.coroutine
-    def run(self, commands):
+    def run(self, bot, update, args):
         output_string = "<b>Available commands</b>\n"
         output_string += commands
-        yield from self.bot.sendMessage("{}".format(output_string), parse_mode="HTML")
+        ybot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
 
     @classmethod
     def sort_by_word(cls, userdict):
@@ -185,15 +185,22 @@ class Help(GeneralMessageEvent):
             return 0
         return usercountobject.wordcounter
 
+class AudioTips(GeneralMessageEvent):
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
+        self.tipdb = self.dbobject.Get("tipdb")
+
+
+
+
 class Counter(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
         self.seen = self.dbobject.Get("seenlog")
 
-    @asyncio.coroutine
-    def run(self):
+    def run(self, bot, update, args):
         user = self.seen.usercounter.Get()
-        usercount = user.get(self.messageobject.mfrom.username)
+        usercount = user.get(update.message.from_user.username)
         usercountobject = SerializableDict.UserObject(usercount)
 
         # Line counter
@@ -202,94 +209,83 @@ class Counter(GeneralMessageEvent):
         else:
             usercountobject.counter = usercountobject.counter + 1
         # Word counter
-        currentwordcount = re.findall('\w+', self.messageobject.text.lower())
+        currentwordcount = re.findall('\w+', update.message.text.lower())
         print("Words: {}".format(len(currentwordcount)))
         if usercountobject.wordcounter == "":
             usercountobject.wordcounter = len(currentwordcount)
         else:
             usercountobject.wordcounter = usercountobject.wordcounter + len(currentwordcount)
         # Last seen
-        usercountobject.modified = str(datetime.datetime.now().replace(microsecond=0))
+        usercountobject.timestamp = str(datetime.datetime.now().replace(microsecond=0))
         # Metadata
-        usercountobject.firstname = self.messageobject.mfrom.first_name
-        usercountobject.lastname = self.messageobject.mfrom.last_name
-        usercountobject.username = self.messageobject.mfrom.username
+        usercountobject.firstname = update.message.from_user.first_name
+        usercountobject.lastname = update.message.from_user.last_name
+        usercountobject.username = update.message.from_user.username
         # Store object to dictionary and back to DB
-        user.set(self.messageobject.mfrom.username, usercountobject.SaveObject())
+        user.set(update.message.from_user.username, usercountobject.SaveObject())
         self.seen.usercounter.Set(user)
 
 
 class Seen(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
         self.seendb = self.dbobject.Get("seenlog")
 
-    @asyncio.coroutine
-    def run(self):
-        Loggiz.L.info("Gettings Stats")
-        Loggiz.L.Print(self.messageobject.text)
+    def run(self, bot, update, args):
+        self.logger.info("Gettings Stats")
         user = self.seendb.usercounter.Get()
-        found = None
-        m = re.search('^({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
-        if m is not None:
-            found = m.groups()
-        else:
-            m = re.search('^({})\s(.*)$'.format(self.keyword), self.messageobject.text)
-            if m is not None:
-                found = m.groups()
-        if found is not None:
-            username = found[1]
-            if username.startswith("@"):
-                # remove @
-                username = username[1:]
+
+        if len(args) > 0:
+            self.logger.info("finding user {}".format(args[0]))
+            username = self.stripusername(args[0])
 
             fetchseenuser = user.get(username)
             userseenobject = SerializableDict.UserObject(fetchseenuser)
-            if userseenobject.modified != "":
-                yield from self.bot.sendMessage("hey! {} was last seen {} (lines/words: {}/{})".format(username, userseenobject.modified, userseenobject.counter, userseenobject.wordcounter))
+            self.logger.info(userseenobject.timestamp)
+            if userseenobject.timestamp != "":
+                bot.sendMessage(update.message.chat_id, text="hey! {} was last seen {} (lines/words: {}/{})".format(username, userseenobject.timestamp, userseenobject.counter, userseenobject.wordcounter))
             else:
-                Loggiz.L.Print("Did not find any user!")
+                self.logger.warn("Did not find any user info!")
+        else:
+            bot.sendMessage(update.message.chat_id, text="{} U ale wlong!! do like this!! command @<username>".format(telegram.Emoji.PILE_OF_POO))
 
 
 class QuoteBase(GeneralMessageEvent):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        GeneralMessageEvent.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        GeneralMessageEvent.__init__(self, logger)
         self.uindex = self.dbobject.Get("userindex")
 
 
 class AddQuote(QuoteBase):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        QuoteBase.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        QuoteBase.__init__(self, logger)
 
-    @asyncio.coroutine
-    def run(self):
+    def run(self, bot, update, args):
         new_quote_index = str(uuid.uuid4())
 
-        m = re.search('^({})\s+(.*): (.*)$'.format(self.keyword), self.messageobject.text)
-        if m is not None:
-            found = m.groups()
-            if len(found) != 3:
-                yield from self.bot.sendMessage('[USAGE] !addquote <username>: <quote>')
-            if found[1] not in self.uindex.index.Get():
+        if len(args) != 2:
+            bot.sendMessage(update.message.chat_id, text='[USAGE] <username> <quote>')
+        else:
+            username = self.stripusername(args[0])
+            if username not in self.uindex.index.Get():
                 tmplist = self.uindex.index.Get()
-                tmplist.append(found[1])
+                tmplist.append(args[1])
                 self.uindex.index.Set(tmplist)
-                Loggiz.L.info("user/nick added to index")
+                self.logger.info("user/nick added to index")
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "str", desc="", hidden=False)
-            quotetext.Set(found[2])
+            quotetext.Set(args[1])
 
-            quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(found[1]), "list", desc="", hidden=False)
+            quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
             qmun = quotemetausername.Get()
             qmun.append(new_quote_index)
             quotemetausername.Set(qmun)
-            yield from self.bot.sendMessage("Quote from {} added with id {}".format(found[1], new_quote_index))
-        else:
-            yield from self.bot.sendMessage('[USAGE] !addquote <username>: <quote>')
+            bot.sendMessage(update.message.chat_id, text="Quote from {} added with id {}".format(username, new_quote_index))
+
 
 
 class Quote(QuoteBase):
-    def __init__(self, keyword, bot, dbobject, messageobject):
-        QuoteBase.__init__(self, keyword, bot, dbobject, messageobject)
+    def __init__(self, logger):
+        QuoteBase.__init__(self, logger)
 
     def get_quote(self, username):
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
@@ -297,7 +293,7 @@ class Quote(QuoteBase):
         if len(qmun) > 0:
             random.seed(calendar.timegm(time.gmtime()))
             foundindex = random.randrange(0, len(qmun))
-            Loggiz.L.info("found: {}, total: {}".format(foundindex, len(qmun)))
+            self.logger.info("found: {}, total: {}".format(foundindex, len(qmun)))
             if len(qmun) == foundindex:
                 foundindex = foundindex - 1
             quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
@@ -305,24 +301,10 @@ class Quote(QuoteBase):
         else:
             return None
 
-    @asyncio.coroutine
-    def run(self):
-        quoteoutput = None
-        found = None
-        qsentence = re.search('^.*({})\s(.*)[$\s.]+$'.format(self.keyword), self.messageobject.text)
-        qdirect = re.search('.*({})\s(.*)$'.format(self.keyword), self.messageobject.text)
-        qsingle = re.search('^({})$'.format(self.keyword), self.messageobject.text)
-        if qsentence is not None:
-            found = qsentence.groups()
-            Loggiz.L.info("quote found in sentence")
-            quoteoutput = self.get_quote(found[1])
-        elif qdirect is not None:
-            found = qdirect.groups()
-            Loggiz.L.info("quote found direct")
-            quoteoutput = self.get_quote(found[1])
-        elif qsingle is not None:
-            found = qsingle.groups()
-            Loggiz.L.info("quote found single")
+    def run(self, bot, update, args):
+        if len(args) == 1:
+            quoteoutput = self.get_quote(args[0])
+        else:
             userindexlength = len(self.uindex.index.Get())
             if userindexlength == 0:
                 return
@@ -331,9 +313,8 @@ class Quote(QuoteBase):
             if len(self.uindex.index.Get()) == luckyuser:
                 luckyuser = luckyuser - 1
             quoteoutput = self.get_quote(self.uindex.index.Get()[luckyuser])
-        if found is not None:
-            if quoteoutput is not None:
-                yield from self.bot.sendMessage(quoteoutput)
+        if quoteoutput is not None:
+            bot.sendMessage(update.message.chat_id, text=quoteoutput)
 
 
 if __name__ == '__main__':

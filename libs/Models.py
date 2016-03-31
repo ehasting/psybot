@@ -70,6 +70,10 @@ class seenlog(ComnodeModel):
          ComnodeModel.__init__(self)
          self.usercounter = StorageObjects.ComnodeObject(self.s("usercounter"), "SkyShellDict", desc="", hidden=False)
 
+class tipdb(ComnodeModel):
+     def __init__(self):
+         ComnodeModel.__init__(self)
+         self.tips = StorageObjects.ComnodeObject(self.s("tips"), "SkyShellDict", desc="", hidden=False)
 
 class userindex(ComnodeModel):
      def __init__(self):
@@ -81,6 +85,7 @@ class StaticModels(object):
     models = {}
     models["seenlog"] = seenlog()
     models["userindex"] = userindex()
+    models["tipdb"] = tipdb()
 
     @staticmethod
     def Get(modelname):

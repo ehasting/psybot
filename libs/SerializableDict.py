@@ -81,6 +81,8 @@ class SkyShellDictObject(object):
     status = None
     attributenamename = "name"
     name = ""
+    antimestamp = "timestamp"
+    timestamp = ""
 
     def __init__(self, data=None):
         if isinstance(data, str):
@@ -95,33 +97,51 @@ class SkyShellDictObject(object):
     def Load(self):
         self.status = self.data.get(self.attributenamestatus)
         self.name = self.data.get(self.attributenamename)
+        self.timestamp = self.data.get(self.antimestamp)
 
     def Save(self):
         self.data.set(self.attributenamestatus, self.status)
         self.data.set(self.attributenamename, self.name)
+        self.data.set(self.antimestamp, self.timestamp)
 
     def SaveObject(self):
         self.Save()
         return self.data.save()
 
 
+class Tip(SkyShellDictObject):
+    anid = "id"
+    anusername = "username"
+    antip = "tip"
+
+
+    def Load(self):
+        SkyShellDictObject.Load(self)
+        self.id = self.data.get(self.anid)
+        self.tip = self.data.get(self.antip)
+        self.username = self.data.get(self.anusername)
+
+    def Save(self):
+        SkyShellDictObject.Save(self)
+        self.data.set(self.antip, self.tip)
+        self.data.set(self.anid, self.id)
+        self.data.set(self.anusername, self.username)
+        return self.data
+
 class QuoteObject(SkyShellDictObject):
     anusername = "username"
     anfirstname = "firstname"
     anquote = "quote"
-    antimestamp = "timestamp"
 
     def Load(self):
         SkyShellDictObject.Load(self)
         self.counter = self.data.get(self.ancounter)
-        self.modified = self.data.get(self.anmodified)
         self.firstname = self.data.get(self.anfirstname)
         self.username = self.data.get(self.anusername)
 
     def Save(self):
         SkyShellDictObject.Save(self)
         self.data.set(self.ancounter, self.counter)
-        self.data.set(self.anmodified, self.modified)
         self.data.set(self.anfirstname, self.firstname)
         self.data.set(self.anusername, self.username)
         return self.data
@@ -130,9 +150,6 @@ class QuoteObject(SkyShellDictObject):
 class UserObject(SkyShellDictObject):
     ancounter = "counter"
     counter = 0
-
-    anmodified = "modified"
-    modified = None
 
     anfirstname = "firstname"
     firstname = None
@@ -154,7 +171,6 @@ class UserObject(SkyShellDictObject):
         SkyShellDictObject.Load(self)
         self.counter = self.data.get(self.ancounter)
         self.wordcounter = self.data.get(self.anwordcounter)
-        self.modified = self.data.get(self.anmodified)
         self.firstname = self.data.get(self.anfirstname)
         self.lastname = self.data.get(self.anlastname)
         self.username = self.data.get(self.anusername)
@@ -163,7 +179,6 @@ class UserObject(SkyShellDictObject):
         SkyShellDictObject.Save(self)
         self.data.set(self.ancounter, self.counter)
         self.data.set(self.anwordcounter, self.wordcounter)
-        self.data.set(self.anmodified, self.modified)
         self.data.set(self.anfirstname, self.firstname)
         self.data.set(self.anlastname, self.lastname)
         self.data.set(self.anusername, self.username)
