@@ -342,6 +342,7 @@ class Quote(QuoteBase):
         if quoteoutput is not None:
             Loggiz.log.write.info(str(self.taken))
             bot.sendMessage(update.message.chat_id, text=quoteoutput, parse_mode="HTML")
+            self.taken = list()
 
 
 if __name__ == '__main__':
