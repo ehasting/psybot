@@ -139,7 +139,6 @@ class Time(GeneralMessageEvent):
     def __init__(self):
         GeneralMessageEvent.__init__(self)
 
-
     def run(self, bot, update, args):
         localtime = datetime.datetime.now()
         home = pytz.timezone("Europe/Oslo")
@@ -147,17 +146,15 @@ class Time(GeneralMessageEvent):
         timezones = self.config.timezones.Get()
         out = "<b>Current Time</b>\n"
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
-        for timezone in timezones:
-            desc = timezone[0]
-            zonename = timezone[1]
+        for tz in timezones:
+            desc = tz[0]
+            zonename = tz[1]
             currentzone = pytz.timezone(zonename)
             currentlocaltime = localtime.astimezone(currentzone)
-            out += "{}: {}\n".format(desc, str(currentlocaltime.strftime('%X %x %Z')) )
-        currentzone = pytz.timezone("US/Eastern")
-        denver = pytz.timezone("America/Denver")
-
+            out += "{}: {}\n".format(desc, str(currentlocaltime.strftime('%X %x %Z')))
         Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
+
 
 class Configure(GeneralMessageEvent):
     def __init__(self):
