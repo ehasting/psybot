@@ -168,9 +168,11 @@ class Configure(GeneralMessageEvent):
             out = "Available configuration: addignoreword, delignoreword"
         elif args[0] == "addignoreword":
             for word in args[1:]:
+                Loggiz.log.write.info(word)
                 out = self.addignoreword(word)
         elif args[0] == "delignoreword":
             for word in args[1:]:
+                Loggiz.log.write.info(word)
                 out = self.delignoreword(word)
 
         Loggiz.log.write.info(out)
