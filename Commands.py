@@ -143,6 +143,7 @@ class Stats(GeneralMessageEvent):
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
         self.wordcounter = self.dbobject.Get("wordcounter")
+        self.ignorewords = ["it", "the", "to", "i"]
 
     def run(self, bot, update, args):
         users = self.seen.usercounter.Get()
@@ -159,10 +160,13 @@ class Stats(GeneralMessageEvent):
         output_string += "\n<b>Most used words:</b>\n"
         words = self.wordcounter.words.Get()
         cnt = 0
+
         for key, value in sorted(words.rawdict(), key=self.sort_by_wordusage, reverse=True):
             Loggiz.log.write.info(value)
             currentword = SerializableDict.WordStats(value)
             Loggiz.log.write.info(currentword.word)
+            if currentword.word in self.ignorewords:
+                continue
             output_string += "{}: {} times\n".format(currentword.word, currentword.counter)
             cnt += 1
             if cnt > 4:
