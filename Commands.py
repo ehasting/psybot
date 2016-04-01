@@ -162,6 +162,7 @@ class Configure(GeneralMessageEvent):
         if len(args) <= 0:
             return
         if update.message.from_user.username not in self.config.admins.Get() or update.message.from_user.username != "ehasting":
+            Loggiz.log.write.error("Non admin ({}) tried to configure the bot".format(update.message.from_user.username))
             return
         if args[0] == "help":
             out = "Available configuration: addignoreword, delignoreword"
