@@ -139,33 +139,23 @@ class Time(GeneralMessageEvent):
     def __init__(self):
         GeneralMessageEvent.__init__(self)
 
+
     def run(self, bot, update, args):
         localtime = datetime.datetime.now()
         home = pytz.timezone("Europe/Oslo")
-        baltimore = pytz.timezone("US/Eastern")
-        denver = pytz.timezone("America/Denver")
-
         localtime = home.normalize(home.localize(localtime))
-        baltimoretime = localtime.astimezone(baltimore)
-        denvertime = localtime.astimezone(denver)
-        '''
-            CLOCK_FACE_ONE_OCLOCK = n(b'\xF0\x9F\x95\x90')
-            CLOCK_FACE_TWO_OCLOCK = n(b'\xF0\x9F\x95\x91')
-            CLOCK_FACE_THREE_OCLOCK = n(b'\xF0\x9F\x95\x92')
-            CLOCK_FACE_FOUR_OCLOCK = n(b'\xF0\x9F\x95\x93')
-            CLOCK_FACE_FIVE_OCLOCK = n(b'\xF0\x9F\x95\x94')
-            CLOCK_FACE_SIX_OCLOCK = n(b'\xF0\x9F\x95\x95')
-            CLOCK_FACE_SEVEN_OCLOCK = n(b'\xF0\x9F\x95\x96')
-            CLOCK_FACE_EIGHT_OCLOCK = n(b'\xF0\x9F\x95\x97')
-            CLOCK_FACE_NINE_OCLOCK = n(b'\xF0\x9F\x95\x98')
-            CLOCK_FACE_TEN_OCLOCK = n(b'\xF0\x9F\x95\x99')
-            CLOCK_FACE_ELEVEN_OCLOCK = n(b'\xF0\x9F\x95\x9A')
-            CLOCK_FACE_TWELVE_OCLOCK = n(b'\xF0\x9F\x95\x9B')
-    '''
+        timezones = self.config.timezones.Get()
         out = "<b>Current Time</b>\n"
         out += "Norway: " + str(localtime.strftime('%X %x %Z')) + "\n"
-        out += "Baltimore: " + str(baltimoretime.strftime('%X %x %Z')) + "\n"
-        out += "Denver: " + str(denvertime.strftime('%X %x %Z')) + "\n"
+        for timezone in timezones:
+            desc = timezone[0]
+            zonename = timezone[1]
+            currentzone = pytz.timezone(zonename)
+            currentlocaltime = localtime.astimezone(currentzone)
+            out += "{}: {}\n".format(desc, str(currentlocaltime.strftime('%X %x %Z')) )
+        currentzone = pytz.timezone("US/Eastern")
+        denver = pytz.timezone("America/Denver")
+
         Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
@@ -189,6 +179,17 @@ class Configure(GeneralMessageEvent):
             return True
         return False
 
+    def addtimezone(self, desc, tzstring):
+        d = self.config.timezones.Get()
+        for tz in d:
+            if tz[0] == desc:
+                return False
+        d.append([desc, tzstring])
+        self.config.timezones.Set(d)
+        return True
+
+    def deltimezone(self, desc):
+        pass
 
     def run(self, bot, update, args):
         out = None
@@ -199,7 +200,7 @@ class Configure(GeneralMessageEvent):
             bot.sendMessage(update.message.chat_id, text="{}".format("you need backdoor access... no grid for you!!!!"), parse_mode="HTML")
             return
         if args[0] == "help":
-            out = "Available configuration: addignoreword, delignoreword"
+            out = "Available configuration: addignoreword, delignoreword, addtimezone"
         elif args[0] == "addignoreword":
             for word in args[1:]:
                 out = self.addignoreword(word)
@@ -208,9 +209,12 @@ class Configure(GeneralMessageEvent):
             for word in args[1:]:
                 out = self.delignoreword(word)
                 Loggiz.log.write.info("{} = {}".format(word, out))
+        elif args[0] == "addtimezone":
+            out = self.addtimezone(args[1], args[2])
         if out is not None:
             Loggiz.log.write.info(out)
             bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
+
 
 class Stats(GeneralMessageEvent):
     def __init__(self):

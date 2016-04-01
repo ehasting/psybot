@@ -90,7 +90,7 @@ class config(ComnodeModel):
          ComnodeModel.__init__(self)
          self.ignorewords = StorageObjects.ComnodeObject(self.s("ignorewords"), "list", desc="", hidden=False)
          self.admins = StorageObjects.ComnodeObject(self.s("admins"), "list", desc="", hidden=False)
-         self.timezones = StorageObjects.ComnodeObject(self.s("timezones"), "SkyShellDict", desc="", hidden=False)
+         self.timezones = StorageObjects.ComnodeObject(self.s("timezones"), "list", desc="", hidden=False)
 
 
 class StaticModels(object):
