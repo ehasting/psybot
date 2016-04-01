@@ -85,12 +85,21 @@ class wordcounter(ComnodeModel):
          ComnodeModel.__init__(self)
          self.words = StorageObjects.ComnodeObject(self.s("words"), "SkyShellDict", desc="", hidden=False)
 
+class config(ComnodeModel):
+     def __init__(self):
+         ComnodeModel.__init__(self)
+         self.ignorewords = StorageObjects.ComnodeObject(self.s("ignorewords"), "list", desc="", hidden=False)
+         self.admins = StorageObjects.ComnodeObject(self.s("admins"), "list", desc="", hidden=False)
+         self.timezones = StorageObjects.ComnodeObject(self.s("timezones"), "SkyShellDict", desc="", hidden=False)
+
+
 class StaticModels(object):
     models = {}
     models["seenlog"] = seenlog()
     models["userindex"] = userindex()
     models["tipdb"] = tipdb()
     models["wordcounter"] = wordcounter()
+    models["config"] = config()
 
     @staticmethod
     def Get(modelname):

@@ -54,6 +54,7 @@ __status__ = "Production"
 class GeneralMessageEvent(object):
     def __init__(self):
         self.dbobject = Models.StaticModels()
+        self.config = self.dbobject.Get("config")
 
     def run(self, bot, update, args):
         raise NotImplementedError()
@@ -136,6 +137,41 @@ class Time(GeneralMessageEvent):
         Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
+class Configure(GeneralMessageEvent):
+    def __init__(self):
+        GeneralMessageEvent.__init__(self)
+    
+    def addignoreword(self, word):
+        d = self.config.ignorewords.Get()
+        if word not in d:
+            d.append(word)
+            self.config.ignorewords.Set(d)
+            return True
+        return False
+
+    def delignoreword(self, word):
+        d = self.config.ignorewords.Get()
+        if word in d:
+            d.remove(word)
+            self.config.ignorewords.Set(d)
+            return True
+        return False
+
+
+    def run(self, bot, update, args):
+        if len(args) <= 0:
+            return
+        if update.message.from_user.username not in self.config.admins.Get() or update.message.from_user.username != "ehasting":
+            return
+        if args[0] == "help":
+            out = "Available configuration: addignoreword, delignoreword"
+        elif args[0] == "addignoreword":
+            self.addignoreword(args[1])
+        elif args[0] == "delignoreword":
+            self.delignoreword(args[1])
+
+        Loggiz.log.write.info(out)
+        bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
 class Stats(GeneralMessageEvent):
     def __init__(self):
@@ -143,12 +179,12 @@ class Stats(GeneralMessageEvent):
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
         self.wordcounter = self.dbobject.Get("wordcounter")
-        self.ignorewords = ["it", "the", "to", "i", "you", "a", "that", "yeah", "is", "are"]
+        self.ignorewords = self.config.ignorewords.Get()
 
     def run(self, bot, update, args):
         users = self.seen.usercounter.Get()
         data = users.rawdict()
-        output_string = "<b>Most Active User Stats (by words):</b>\n\n"
+        output_string = "<b>Most Active User Stats (by words):</b>\n"
         place = 1
         for key, user in sorted(data, key=self.sort_by_word, reverse=True):
             username = key
