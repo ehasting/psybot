@@ -142,6 +142,7 @@ class Stats(GeneralMessageEvent):
         GeneralMessageEvent.__init__(self)
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
+        self.wordcounter = self.dbobject.Get("wordcounter")
 
     def run(self, bot, update, args):
         users = self.seen.usercounter.Get()
@@ -155,8 +156,26 @@ class Stats(GeneralMessageEvent):
             usercountobject = SerializableDict.UserObject(user)
             output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
             place += 1
+        output_string += "\n<b>Most used words:</b>\n"
+        words = self.wordcounter.words.Get()
+        cnt = 0
+        for key, value in sorted(words.rawdict(), key=self.sort_by_wordusage, reverse=True):
+            Loggiz.log.write.info(value)
+            currentword = SerializableDict.WordStats(value)
+            Loggiz.log.write.info(currentword.word)
+            output_string += "{}: {} times\n".format(currentword.word, currentword.counter)
+            cnt += 1
+            if cnt > 4:
+                break
         Loggiz.log.write.info(output_string)
         bot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
+
+    def sort_by_wordusage(self, worddict):
+        d = SerializableDict.WordStats(worddict[1])
+        if not isinstance(d.counter, int):
+            return 0
+        return d.counter
+
 
     def sort_by_word(self, userdict):
         usercountobject = SerializableDict.UserObject(userdict[1])
@@ -173,7 +192,7 @@ class Help(GeneralMessageEvent):
     def run(self, bot, update, args):
         output_string = "<b>Available commands</b>\n"
         output_string += commands
-        ybot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
+        bot.sendMessage(update.message.chat_id, text="{}".format(output_string), parse_mode="HTML")
 
     @classmethod
     def sort_by_word(cls, userdict):
@@ -194,11 +213,13 @@ class Counter(GeneralMessageEvent):
     def __init__(self):
         GeneralMessageEvent.__init__(self)
         self.seen = self.dbobject.Get("seenlog")
+        self.wordcounter = self.dbobject.Get("wordcounter")
 
     def run(self, bot, update, args):
         user = self.seen.usercounter.Get()
         usercount = user.get(update.message.from_user.username)
         usercountobject = SerializableDict.UserObject(usercount)
+        words = self.wordcounter.words.Get()
 
         # Line counter
         if usercountobject.counter == "":
@@ -207,6 +228,18 @@ class Counter(GeneralMessageEvent):
             usercountobject.counter = usercountobject.counter + 1
         # Word counter
         currentwordcount = re.findall('\w+', update.message.text.lower())
+        for word in currentwordcount:
+            current = words.get(word)
+            current = SerializableDict.WordStats(current)
+            if current.counter == "":
+                current.counter = 0
+                current.word = word
+            current.counter = int(current.counter) + 1
+            Loggiz.log.write.info("{}: {}".format(current.word, current.counter))
+            words.set(word, current.SaveObject())
+        self.wordcounter.words.Set(words)
+
+
         print("Words: {}".format(len(currentwordcount)))
         if usercountobject.wordcounter == "":
             usercountobject.wordcounter = len(currentwordcount)

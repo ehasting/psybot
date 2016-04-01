@@ -80,12 +80,17 @@ class userindex(ComnodeModel):
          ComnodeModel.__init__(self)
          self.index = StorageObjects.ComnodeObject(self.s("index"), "list", desc="", hidden=False)
 
+class wordcounter(ComnodeModel):
+     def __init__(self):
+         ComnodeModel.__init__(self)
+         self.words = StorageObjects.ComnodeObject(self.s("words"), "SkyShellDict", desc="", hidden=False)
 
 class StaticModels(object):
     models = {}
     models["seenlog"] = seenlog()
     models["userindex"] = userindex()
     models["tipdb"] = tipdb()
+    models["wordcounter"] = wordcounter()
 
     @staticmethod
     def Get(modelname):

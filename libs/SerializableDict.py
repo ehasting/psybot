@@ -184,6 +184,26 @@ class UserObject(SkyShellDictObject):
         self.data.set(self.anusername, self.username)
         return self.data
 
+class WordStats(SkyShellDictObject):
+    anword = "word"
+    word = ""
+
+    ancounter = "counter"
+    counter = 0
+
+    def __init__(self, data=None):
+        SkyShellDictObject.__init__(self, data)
+
+    def Load(self):
+        SkyShellDictObject.Load(self)
+        self.counter = self.data.get(self.ancounter)
+        self.word = self.data.get(self.anword)
+
+    def Save(self):
+        SkyShellDictObject.Save(self)
+        self.data.set(self.ancounter, self.counter)
+        self.data.set(self.anword, self.word)
+        return self.data
 
 if __name__ == '__main__':
     d = SkyShellDictObject()

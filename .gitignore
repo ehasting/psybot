@@ -1,2 +1,3 @@
 localdatabase.db
 __pycache__
+*.pyc
