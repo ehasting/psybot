@@ -164,7 +164,7 @@ class Configure(GeneralMessageEvent):
             return
         if update.message.from_user.username not in self.config.admins.Get() and update.message.from_user.username != "ehasting":
             Loggiz.log.write.error("Non admin ({}) tried to configure the bot".format(update.message.from_user.username))
-            bot.sendMessage(update.message.chat_id, text="{}".format("you are nothing but a humble user.. you cant do this shit!"), parse_mode="HTML")
+            bot.sendMessage(update.message.chat_id, text="{}".format("you need backdoor access... no grid for you!!!!"), parse_mode="HTML")
             return
         if args[0] == "help":
             out = "Available configuration: addignoreword, delignoreword"
