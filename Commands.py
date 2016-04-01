@@ -159,6 +159,7 @@ class Configure(GeneralMessageEvent):
 
 
     def run(self, bot, update, args):
+        out = None
         if len(args) == 0:
             return
         if update.message.from_user.username not in self.config.admins.Get() and update.message.from_user.username != "ehasting":
@@ -174,9 +175,9 @@ class Configure(GeneralMessageEvent):
             for word in args[1:]:
                 out = self.delignoreword(word)
                 Loggiz.log.write.info("{} = {}".format(word, out))
-
-        Loggiz.log.write.info(out)
-        bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
+        if out is not None:
+            Loggiz.log.write.info(out)
+            bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
 
 class Stats(GeneralMessageEvent):
     def __init__(self):
