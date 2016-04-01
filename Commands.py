@@ -184,9 +184,9 @@ class Stats(GeneralMessageEvent):
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
         self.wordcounter = self.dbobject.Get("wordcounter")
-        self.ignorewords = self.config.ignorewords.Get()
 
     def run(self, bot, update, args):
+        self.ignorewords = self.config.ignorewords.Get()
         users = self.seen.usercounter.Get()
         data = users.rawdict()
         output_string = "<b>Most Active User Stats (by words):</b>\n"
