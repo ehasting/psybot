@@ -90,6 +90,7 @@ if __name__ == '__main__':
     dp.addTelegramCommandHandler("stats", Commands.Stats().run)
     dp.addTelegramCommandHandler("time", Commands.Time().run)
     dp.addTelegramCommandHandler("search", Commands.WebSearchDuckDuckGo().run)
+    dp.addTelegramCommandHandler("config", Commands.Configure().run)
 
     # on noncommand i.e message - echo the message on Telegram
     dp.addTelegramMessageHandler(Commands.Counter().run)
