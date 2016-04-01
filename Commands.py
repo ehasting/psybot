@@ -143,7 +143,7 @@ class Stats(GeneralMessageEvent):
         self.seen = self.dbobject.Get("seenlog")
         self.uindex = self.dbobject.Get("userindex")
         self.wordcounter = self.dbobject.Get("wordcounter")
-        self.ignorewords = ["it", "the", "to", "i"]
+        self.ignorewords = ["it", "the", "to", "i", "you", "a", "that", "yeah", "is", "are"]
 
     def run(self, bot, update, args):
         users = self.seen.usercounter.Get()
