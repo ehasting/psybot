@@ -49,6 +49,38 @@ __maintainer__ = "Egil Hasting"
 __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
 
+class emoji(object):
+    def __init__(self):
+        self.used = list()
+        random.seed(calendar.timegm(time.gmtime()))
+
+    def get_randomanimal(self):
+        animals = [ telegram.Emoji.RAT,
+                    telegram.Emoji.MOUSE,
+                    telegram.Emoji.OX,
+                    telegram.Emoji.WATER_BUFFALO,
+                    telegram.Emoji.COW,
+                    telegram.Emoji.TIGER,
+                    telegram.Emoji.LEOPARD,
+                    telegram.Emoji.RABBIT,
+                    telegram.Emoji.CAT,
+                    telegram.Emoji.DRAGON,
+                    telegram.Emoji.CROCODILE,
+                    telegram.Emoji.WHALE,
+                    telegram.Emoji.RAM,
+                    telegram.Emoji.GOAT,
+                    telegram.Emoji.ROOSTER,
+                    telegram.Emoji.DOG,
+                    telegram.Emoji.PIG]
+        while True:
+            foundindex = random.randrange(1, len(animals)) - 1
+            if foundindex not in self.used:
+                self.used.append(foundindex)
+                break
+            if len(self.used) == len(animals):
+                self.used = list()
+        return animals[foundindex]
+
 #         self.db = dbobject
  #       self.uindex = dbobject.Get("userindex")
 class GeneralMessageEvent(object):
@@ -193,12 +225,13 @@ class Stats(GeneralMessageEvent):
         data = users.rawdict()
         output_string = "<b>Most Active User Stats (by words):</b>\n"
         place = 1
+        placeemoji = emoji()
         for key, user in sorted(data, key=self.sort_by_word, reverse=True):
             username = key
             if username == "":
                 continue
             usercountobject = SerializableDict.UserObject(user)
-            output_string += "[{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter)
+            output_string += "{} [{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter, placeemoji.get_randomanimal())
             place += 1
         output_string += "\n<b>Most used words:</b>\n"
         words = self.wordcounter.words.Get()
