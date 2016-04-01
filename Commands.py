@@ -314,7 +314,8 @@ class Counter(GeneralMessageEvent):
         currentwordcount = re.findall('\w+', update.message.text.lower())
         ignorecharacterlist = [".", "!", "?", ",", ":", ";", "-", "_", "/"]
         for word in currentwordcount:
-            word = word.translate(None, ''.join(ignorecharacterlist))
+            #word = word.translate(None, ''.join(ignorecharacterlist))
+
             current = words.get(word)
             current = SerializableDict.WordStats(current)
             if current.counter == "":
