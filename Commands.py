@@ -140,7 +140,7 @@ class Time(GeneralMessageEvent):
 class Configure(GeneralMessageEvent):
     def __init__(self):
         GeneralMessageEvent.__init__(self)
-    
+
     def addignoreword(self, word):
         d = self.config.ignorewords.Get()
         if word not in d:
@@ -159,7 +159,7 @@ class Configure(GeneralMessageEvent):
 
 
     def run(self, bot, update, args):
-        if len(args) <= 0:
+        if len(args) == 0:
             return
         if update.message.from_user.username not in self.config.admins.Get() or update.message.from_user.username != "ehasting":
             Loggiz.log.write.error("Non admin ({}) tried to configure the bot".format(update.message.from_user.username))
@@ -167,9 +167,11 @@ class Configure(GeneralMessageEvent):
         if args[0] == "help":
             out = "Available configuration: addignoreword, delignoreword"
         elif args[0] == "addignoreword":
-            self.addignoreword(args[1])
+            for word in args[1:]:
+                self.addignoreword(word)
         elif args[0] == "delignoreword":
-            self.delignoreword(args[1])
+            for word in args[1:]:
+                self.delignoreword(word)
 
         Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
