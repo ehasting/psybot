@@ -168,10 +168,10 @@ class Configure(GeneralMessageEvent):
             out = "Available configuration: addignoreword, delignoreword"
         elif args[0] == "addignoreword":
             for word in args[1:]:
-                self.addignoreword(word)
+                out = self.addignoreword(word)
         elif args[0] == "delignoreword":
             for word in args[1:]:
-                self.delignoreword(word)
+                out = self.delignoreword(word)
 
         Loggiz.log.write.info(out)
         bot.sendMessage(update.message.chat_id, text="{}".format(out), parse_mode="HTML")
