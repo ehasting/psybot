@@ -234,7 +234,7 @@ class Stats(GeneralMessageEvent):
             useremoji = placeemoji.get_randomanimal()
             output_string += "{} [{}] {}: {} (Lines: {})\n".format(useremoji, place, username, usercountobject.wordcounter, usercountobject.counter)
             if telegram.Emoji.DRAGON == useremoji:
-                output_string += "   - Entering the dragon......"
+                output_string += "   - Entering the dragon......\n"
             place += 1
         output_string += "\n<b>Most used words:</b>\n"
         words = self.wordcounter.words.Get()
