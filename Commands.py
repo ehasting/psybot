@@ -231,7 +231,10 @@ class Stats(GeneralMessageEvent):
             if username == "":
                 continue
             usercountobject = SerializableDict.UserObject(user)
-            output_string += "{} [{}] {}: {} (Lines: {})\n".format(place, username, usercountobject.wordcounter, usercountobject.counter, placeemoji.get_randomanimal())
+            useremoji = placeemoji.get_randomanimal()
+            output_string += "{} [{}] {}: {} (Lines: {})\n".format(useremoji, place, username, usercountobject.wordcounter, usercountobject.counter)
+            if telegram.Emoji.DRAGON == useremoji:
+                output_string += "   - Entering the dragon......"
             place += 1
         output_string += "\n<b>Most used words:</b>\n"
         words = self.wordcounter.words.Get()
