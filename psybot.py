@@ -12,7 +12,7 @@ import libs.SerializableDict as SerializableDict
 import libs.StorageObjects as StorageObjects
 import libs.Comnodestorage
 import Commands
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import telegram
 
