@@ -299,7 +299,7 @@ class Counter(GeneralMessageEvent):
         self.seen = self.dbobject.Get("seenlog")
         self.wordcounter = self.dbobject.Get("wordcounter")
 
-    def run(self, bot, update, args):
+    def run(self, bot, update):
         user = self.seen.usercounter.Get()
         usercount = user.get(update.message.from_user.username)
         usercountobject = SerializableDict.UserObject(usercount)
