@@ -84,16 +84,16 @@ if __name__ == '__main__':
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("seen", Commands.Seen().run))
-    dp.add_handler(CommandHandler("addquote", Commands.AddQuote().run))
-    dp.add_handler(CommandHandler("quote", Commands.Quote().run))
-    dp.add_handler(CommandHandler("stats", Commands.Stats().run))
-    dp.add_handler(CommandHandler("time", Commands.Time().run))
-    dp.add_handler(CommandHandler("search", Commands.WebSearchDuckDuckGo().run))
-    dp.add_handler(CommandHandler("config", Commands.Configure().run))
+    dp.add_handler(CommandHandler("seen", Commands.Seen().run, pass_args=True))
+    dp.add_handler(CommandHandler("addquote", Commands.AddQuote().run, pass_args=True))
+    dp.add_handler(CommandHandler("quote", Commands.Quote().run, pass_args=True))
+    dp.add_handler(CommandHandler("stats", Commands.Stats().run, pass_args=True))
+    dp.add_handler(CommandHandler("time", Commands.Time().run, pass_args=True))
+    dp.add_handler(CommandHandler("search", Commands.WebSearchDuckDuckGo().run, pass_args=True))
+    dp.add_handler(CommandHandler("config", Commands.Configure().run, pass_args=True))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler([Filters.text], Commands.Counter().run))
+    dp.add_handler(MessageHandler([Filters.text], Commands.Counter().run, pass_args=True))
 
     # log all errors
     dp.add_error_handler(error)
