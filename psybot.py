@@ -84,19 +84,19 @@ if __name__ == '__main__':
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.addTelegramCommandHandler("seen", Commands.Seen().run)
-    dp.addTelegramCommandHandler("addquote", Commands.AddQuote().run)
-    dp.addTelegramCommandHandler("quote", Commands.Quote().run)
-    dp.addTelegramCommandHandler("stats", Commands.Stats().run)
-    dp.addTelegramCommandHandler("time", Commands.Time().run)
-    dp.addTelegramCommandHandler("search", Commands.WebSearchDuckDuckGo().run)
-    dp.addTelegramCommandHandler("config", Commands.Configure().run)
+    dp.add_handler(CommandHandler("seen", Commands.Seen().run))
+    dp.add_handler(CommandHandler("addquote", Commands.AddQuote().run))
+    dp.add_handler(CommandHandler("quote", Commands.Quote().run))
+    dp.add_handler(CommandHandler("stats", Commands.Stats().run))
+    dp.add_handler(CommandHandler("time", Commands.Time().run))
+    dp.add_handler(CommandHandler("search", Commands.WebSearchDuckDuckGo().run))
+    dp.add_handler(CommandHandler("config", Commands.Configure().run))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.addTelegramMessageHandler(Commands.Counter().run)
+    dp.add_handler(MessageHandler([Filters.text], Commands.Counter().run))
 
     # log all errors
-    dp.addErrorHandler(error)
+    dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
