@@ -427,7 +427,7 @@ class Quote(QuoteBase):
                 quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
                 self.taken.append(qmun[foundindex])
             if quotetext.Get() == "":
-                return ""
+                return "TAKEN"
             return "<i>{}</i>: {}".format(username, quotetext.Get())
         else:
             return None
@@ -451,22 +451,18 @@ class Quote(QuoteBase):
             quoteoutput = "<b>{} random Quotes</b>\n".format(nums)
             Loggiz.log.write.info("Args {} converted to {}".format(str(args), nums))
             while True:
-                if iterationcount > (nums * 8):
+                if iterationcount > (nums * 20):
                     Loggiz.log.write.warn("Retry exhausted")
                     break
                 randomuser = self.findrandomuser()
                 currentquote = self.get_quote(randomuser)
                 if currentquote == "TAKEN":
-                    Loggiz.log.write.info("Quote Taken")
+                    Loggiz.log.write.info("Quote Taken or blank")
                     iterationcount += 1
                     continue
                 elif currentquote is None:
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     break
-                elif currentquote == "":
-                    Loggiz.log.write.info("Quote is blank")
-                    iterationcount += 1
-                    continue
                 quoteoutput += "{} {}\n".format(emojiz.get_randomanimal(), currentquote)
                 if len(self.taken) >= nums:
                     break
