@@ -464,15 +464,14 @@ class Quote(QuoteBase):
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
                     iterationcount += 1
                     continue
-                quoteoutput += "{} {}<br />".format(emojiz.get_randomanimal(), currentquote)
+                quoteoutput += "{} {}\n".format(emojiz.get_randomanimal(), currentquote)
                 if len(self.taken) >= nums:
                     break
-                
-
         else:
             quoteoutput = self.get_quote(self.findrandomuser())
         if quoteoutput is not None:
             Loggiz.log.write.info(str(self.taken))
+            Loggiz.log.write.info(quoteoutput)
             bot.sendMessage(update.message.chat_id, text=quoteoutput, parse_mode="HTML")
             self.taken = list()
 
