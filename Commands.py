@@ -462,8 +462,9 @@ class Quote(QuoteBase):
                     continue
                 elif currentquote is None:
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
-                    break
-                quoteoutput += "{} {}\n".format(emojiz.get_randomanimal(), currentquote)
+                    iterationcount += 1
+                    continue
+                quoteoutput += "{} {}<br />".format(emojiz.get_randomanimal(), currentquote)
                 if len(self.taken) >= nums:
                     break
                 
