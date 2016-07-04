@@ -453,7 +453,7 @@ class Quote(QuoteBase):
             nums = int(args[0])
             if nums > 10:
                 nums = 10
-            quoteoutput = "<b>{} random Quotes</b>\n".format(nums)
+            quoteoutput = "<b>(almost) {} random Quotes</b>\n".format(nums)
             Loggiz.log.write.info("Args {} converted to {}".format(str(args), nums))
             while True:
                 if iterationcount > (nums * 20):
