@@ -413,6 +413,8 @@ class Quote(QuoteBase):
         random.seed(calendar.timegm(time.gmtime()))
 
     def get_quote(self, username):
+        username = username.replace("<", "")
+        username = username.replace(">", "")
         quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
         qmun = quotemetausername.Get()
         if len(qmun) > 0:
