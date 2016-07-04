@@ -402,7 +402,7 @@ class AddQuote(QuoteBase):
             qmun = quotemetausername.Get()
             qmun.append(new_quote_index)
             quotemetausername.Set(qmun)
-            bot.sendMessage(update.message.chat_id, text="Quote from {} added with id {}".format(username, new_quote_index))
+            bot.sendMessage(update.message.chat_id, text="Quote from {} added with id {}\n#quote\n/addquote {} {}".format(username, new_quote_index, username, thequote))
 
 
 
