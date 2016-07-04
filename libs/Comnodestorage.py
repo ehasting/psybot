@@ -155,6 +155,7 @@ class ConfigDatabase(object):
         self.dbname = dbname
         self.tablename = "comnodeconfig"
         self.supportedtypes = [DataTypes.Str,
+                               DataTypes.Unicode,
                                DataTypes.Int,
                                DataTypes.Bool,
                                DataTypes.Float,

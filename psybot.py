@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import sys
 import datetime
 import time
@@ -51,7 +51,7 @@ __email__ = "egil.hasting@higen.org"
 __status__ = "Production"
 
 """
-$ python3.4 psybot.py --token <token>
+$ python psybot.py --token <token>
 Tracks user and quotes.
 """
 # Enable logging
@@ -63,7 +63,7 @@ def error(bot, update, error):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--debug", dest="debug", action="store_true", default=False)
-    parser.add_argument('--token', dest='token', type=str, required=True)
+    parser.add_argument('--token', dest='token', type=str, required=False, default="207157142:AAFnlgs6nFMYrYhrio9r5ArME8rpE8vUbKg")
     settings = parser.parse_args(sys.argv[1:])
     if settings.debug is True:
         logging.basicConfig(

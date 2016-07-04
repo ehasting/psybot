@@ -87,6 +87,8 @@ class SkyShellDictObject(object):
     def __init__(self, data=None):
         if isinstance(data, str):
             self.data = SkyShellDict.SubDict(data)
+        elif isinstance(data, unicode):
+            self.data = SkyShellDict.SubDict(data)
         elif isinstance(data, SkyShellDict.SubDict):
             self.data = data
         else:

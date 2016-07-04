@@ -231,6 +231,7 @@ class Stats(GeneralMessageEvent):
             username = key
             if username == "":
                 continue
+            Loggiz.log.write.info(user)
             usercountobject = SerializableDict.UserObject(user)
             useremoji = placeemoji.get_randomanimal()
             output_string += "{} [{}] {}: {} (Lines: {})\n".format(useremoji, place, username, usercountobject.wordcounter, usercountobject.counter)
@@ -390,8 +391,12 @@ class AddQuote(QuoteBase):
                 tmplist.append(username)
                 self.uindex.index.Set(tmplist)
                 Loggiz.log.write.info("user/nick added to index")
-            quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "str", desc="", hidden=False)
-            quotetext.Set(" ".join(args[1:]))
+            thequote = " ".join(args[1:])
+            if isinstance(thequote, unicode):
+                quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "unicode", desc="", hidden=False)
+            else:
+                quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(new_quote_index), "str", desc="", hidden=False)
+            quotetext.Set(thequote)
 
             quotemetausername = StorageObjects.ComnodeObject("quotemap.{}".format(username), "list", desc="", hidden=False)
             qmun = quotemetausername.Get()
@@ -418,10 +423,11 @@ class Quote(QuoteBase):
             if qmun[foundindex] in self.taken:
                 Loggiz.log.write.info("{} is taken".format(qmun[foundindex]))
                 return "TAKEN"
-
             else:
                 quotetext = StorageObjects.ComnodeObject("quotestext.{}".format(qmun[foundindex]), "str", desc="", hidden=False)
                 self.taken.append(qmun[foundindex])
+            if quotetext.Get() == "":
+                return ""
             return "<i>{}</i>: {}".format(username, quotetext.Get())
         else:
             return None
@@ -436,26 +442,35 @@ class Quote(QuoteBase):
         return self.uindex.index.Get()[luckyuser]
 
     def run(self, bot, update, args):
-
+        emojiz = emoji()
+        iterationcount = 0
         if len(args) == 1:
-            
             nums = int(args[0])
             if nums > 10:
                 nums = 10
             quoteoutput = "<b>{} random Quotes</b>\n".format(nums)
             Loggiz.log.write.info("Args {} converted to {}".format(str(args), nums))
             while True:
+                if iterationcount > (nums * 8):
+                    Loggiz.log.write.warn("Retry exhausted")
+                    break
                 randomuser = self.findrandomuser()
                 currentquote = self.get_quote(randomuser)
                 if currentquote == "TAKEN":
                     Loggiz.log.write.info("Quote Taken")
+                    iterationcount += 1
                     continue
                 elif currentquote is None:
                     Loggiz.log.write.info("Quote on {} not found".format(randomuser))
+                    break
+                elif currentquote == "":
+                    Loggiz.log.write.info("Quote is blank")
+                    iterationcount += 1
                     continue
-                quoteoutput += "{} {}\n".format(telegram.Emoji.CACTUS, currentquote)
+                quoteoutput += "{} {}\n".format(emojiz.get_randomanimal(), currentquote)
                 if len(self.taken) >= nums:
                     break
+                
 
         else:
             quoteoutput = self.get_quote(self.findrandomuser())
