@@ -428,7 +428,10 @@ class Quote(QuoteBase):
                 self.taken.append(qmun[foundindex])
             if quotetext.Get() == "":
                 return "TAKEN"
-            return "<i>{}</i>: {}".format(username, quotetext.Get())
+            quoteoutput = quotetext.Get()
+            quoteoutput = quoteoutput.replace("<", "")
+            quoteoutput = quoteoutput.replace(">", "")
+            return "<i>{}</i>: {}".format(username, quoteoutput)
         else:
             return None
 
@@ -472,8 +475,6 @@ class Quote(QuoteBase):
         if quoteoutput is not None:
             Loggiz.log.write.info(str(self.taken))
             Loggiz.log.write.info(quoteoutput)
-            quoteoutput = quoteoutput.replace("<", "")
-            quoteoutput = quoteoutput.replace(">", "")
             bot.sendMessage(update.message.chat_id, text=quoteoutput, parse_mode="HTML")
             self.taken = list()
 
